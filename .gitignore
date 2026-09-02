@@ -14,5 +14,13 @@ node_modules/
 /es.html
 /de.html
 /tr.html
+/*.en.html
+/*.ar.html
+/*.fa.html
+/*.fr.html
+/*.it.html
+/*.es.html
+/*.de.html
+/*.tr.html
 /sitemap.xml
 /robots.txt

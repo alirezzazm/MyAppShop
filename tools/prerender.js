@@ -27,13 +27,16 @@ const siteUrl = String(process.argv[2] || process.env.SITE_URL || PLACEHOLDER).r
 
 /* ---------- load the dictionaries and product data ------------ */
 const sandbox = { window: {} };
-for (const file of ['i18n-data.js', 'products.js']) {
+for (const file of ['i18n-data.js', 'products.js', 'product-view.js']) {
   const code = fs.readFileSync(path.join(ROOT, 'assets/js', file), 'utf8');
   new Function('window', code)(sandbox.window);
 }
 const { LANGS, I18N, PRODUCTS } = sandbox.window;
 
+const { buildProductView } = sandbox.window;
+
 const template = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+const productTemplate = fs.readFileSync(path.join(ROOT, 'product.html'), 'utf8');
 
 /* ---------- helpers ------------------------------------------- */
 const escapeHtml = (s) => String(s)
@@ -152,6 +155,78 @@ function render(meta) {
   return html;
 }
 
+/* ---------- one product page ---------------------------------- */
+function renderProduct(product, meta) {
+  const lang = meta.code;
+  const t = translator(lang);
+  const pageUrl = `${siteUrl}/${product.id}.${lang}.html`;
+
+  const view = buildProductView(product, t, {
+    lang,
+    langCount: LANGS.length,
+    productUrl: (other) => `${other}.${lang}.html`,
+    homeUrl: () => `${lang}.html`,
+    contactUrl: () => `${lang}.html#contact`
+  });
+
+  let html = productTemplate;
+
+  html = html.replace('<html lang="en" dir="ltr">',
+    `<html lang="${lang}" dir="${meta.dir}" data-page-lang="${lang}" data-product-id="${product.id}" data-lang-template="${product.id}.{lang}.html">`);
+
+  // The shared builder produced the same markup the browser would.
+  html = html.replace('<div class="pv-nav" id="pv-nav"></div>',
+    `<div class="pv-nav" id="pv-nav">${view.nav}</div>`);
+  html = html.replace('<main class="container" id="pv-main"></main>',
+    `<main class="container" id="pv-main">${view.main}</main>`);
+
+  // Head: title, description, social cards, canonical, alternates.
+  html = html.replace('<title>Product — MyAppShop</title>', `<title>${escapeHtml(view.title)}</title>`);
+  const setMeta = (attr, name, value) => {
+    html = html.replace(new RegExp(`(<meta ${attr}="${name}" content=")[^"]*(">)`),
+      `$1${escapeHtml(value)}$2`);
+  };
+  setMeta('name', 'description', view.description);
+  setMeta('property', 'og:title', view.title);
+  setMeta('property', 'og:description', view.description);
+  setMeta('name', 'twitter:title', view.title);
+  setMeta('name', 'twitter:description', view.description);
+  setMeta('property', 'og:url', pageUrl);
+  setMeta('property', 'og:locale', lang);
+  setMeta('property', 'og:image', `${siteUrl}/assets/img/og.png`);
+  setMeta('name', 'twitter:image', `${siteUrl}/assets/img/og.png`);
+
+  const alternates = LANGS
+    .map((l) => `<link rel="alternate" hreflang="${l.code}" href="${siteUrl}/${product.id}.${l.code}.html">`)
+    .concat(`<link rel="alternate" hreflang="x-default" href="${siteUrl}/${product.id}.en.html">`)
+    .join('\n');
+
+  const ld = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: t(`p.${product.id}.name`),
+    description: t(`p.${product.id}.long`),
+    applicationCategory: t(`p.${product.id}.tag`),
+    operatingSystem: product.platforms.join(', '),
+    inLanguage: lang,
+    url: pageUrl,
+    image: `${siteUrl}/assets/img/og.png`,
+    publisher: { '@type': 'Organization', name: 'MyAppShop', url: `${siteUrl}/` },
+    aggregateRating: {
+      '@type': 'AggregateRating', ratingValue: product.rating, bestRating: '5', ratingCount: 100
+    }
+  };
+
+  html = html.replace('</head>', [
+    `<link rel="canonical" href="${pageUrl}">`,
+    alternates,
+    `<script type="application/ld+json" id="ld-json">${JSON.stringify(ld)}</script>`,
+    '</head>'
+  ].join('\n'));
+
+  return html;
+}
+
 /* ---------- sitemap and robots -------------------------------- */
 function writeSitemap() {
   const alternates = LANGS
@@ -170,6 +245,21 @@ ${alternates}
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>`));
+
+  for (const product of PRODUCTS) {
+    const productAlts = LANGS
+      .map((l) => `    <xhtml:link rel="alternate" hreflang="${l.code}" href="${siteUrl}/${product.id}.${l.code}.html"/>`)
+      .concat(`    <xhtml:link rel="alternate" hreflang="x-default" href="${siteUrl}/${product.id}.en.html"/>`)
+      .join('\n');
+    for (const l of LANGS) {
+      urls.push(`  <url>
+    <loc>${siteUrl}/${product.id}.${l.code}.html</loc>
+${productAlts}
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>`);
+    }
+  }
 
   fs.writeFileSync(path.join(ROOT, 'sitemap.xml'),
 `<?xml version="1.0" encoding="UTF-8"?>
@@ -198,6 +288,15 @@ for (const meta of LANGS) {
   fs.writeFileSync(out, render(meta));
   console.log(`  ${meta.code}.html  ${meta.native}${meta.dir === 'rtl' ? '  (rtl)' : ''}`);
 }
+let productPages = 0;
+for (const product of PRODUCTS) {
+  for (const meta of LANGS) {
+    fs.writeFileSync(path.join(ROOT, `${product.id}.${meta.code}.html`), renderProduct(product, meta));
+    productPages++;
+  }
+}
+console.log(`  ${productPages} product pages (${PRODUCTS.length} products x ${LANGS.length} languages)`);
+
 writeSitemap();
 console.log('  sitemap.xml\n  robots.txt');
-console.log(`\n${LANGS.length} pages prerendered for ${siteUrl}`);
+console.log(`\n${LANGS.length + productPages} pages prerendered for ${siteUrl}`);

@@ -2,7 +2,7 @@
    MyAppShop — application script
    Everything is dependency-free and works from a static host.
    ============================================================= */
-(function () {
+(function (root) {
   'use strict';
 
   /* ---------- configuration ---------------------------------- */
@@ -80,6 +80,7 @@
     });
 
     renderProducts();
+    if (typeof root.onLanguageApplied === 'function') root.onLanguageApplied(code);
     updateSeo();
     if (persist !== false) store.set('mas.lang', code);
     if (!PAGE_LANG) {
@@ -111,7 +112,12 @@
     function choose(code) {
       // On a prerendered page each language is its own URL, so navigate
       // instead of swapping the text in place.
-      if (PAGE_LANG) { store.set('mas.lang', code); location.href = PAGE_DIR + code + '.html'; return; }
+      if (PAGE_LANG) {
+        store.set('mas.lang', code);
+        var template = document.documentElement.getAttribute('data-lang-template') || '{lang}.html';
+        location.href = PAGE_DIR + template.replace('{lang}', code);
+        return;
+      }
       applyLang(code);
     }
 
@@ -161,8 +167,9 @@
 
     // Prerendered deployments give each language its own file; otherwise
     // the single page distinguishes languages with ?lang=.
+    var template = document.documentElement.getAttribute('data-lang-template') || '{lang}.html';
     var urlFor = function (code) {
-      return PAGE_LANG ? dir + code + '.html' : base + '?lang=' + code;
+      return PAGE_LANG ? dir + template.replace('{lang}', code) : base + '?lang=' + code;
     };
 
     upsertLink('canonical', urlFor(state.lang));
@@ -254,6 +261,15 @@
   }
 
   /* ---------- products --------------------------------------- */
+  // Prerendered deployments have a page per product per language;
+  // otherwise the shared template renders it from the query string.
+  function productHref(p) {
+    if (p.link && p.link !== '#contact') return p.link;
+    return PAGE_LANG
+      ? p.id + '.' + state.lang + '.html'
+      : 'product.html?id=' + p.id + '&lang=' + state.lang;
+  }
+
   function renderProducts() {
     var grid = $('#product-grid');
     if (!grid) return;
@@ -275,7 +291,7 @@
           }).join('') + '</ul>' +
           '<div class="product-foot">' +
             '<span class="rating">★ ' + p.rating + '<i>· ' + p.users + '</i></span>' +
-            '<a class="product-link" href="' + p.link + '" data-product="' + p.id + '">' + t('products.view') +
+            '<a class="product-link" href="' + productHref(p) + '">' + t('products.view') +
               '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h13M13 6l6 6-6 6"/></svg>' +
             '</a>' +
           '</div>' +
@@ -299,79 +315,6 @@
       });
       state.filter = chip.dataset.filter;
       renderProducts();
-    });
-  }
-
-  /* ---------- product dialog --------------------------------- */
-  var modal = {
-    el: null,
-    lastFocus: null,
-    open: function (id) {
-      var p = (window.PRODUCTS || []).filter(function (x) { return x.id === id; })[0];
-      var dlg = this.el;
-      if (!p || !dlg) return;
-
-      dlg.style.setProperty('--accent', p.accent);
-      $('#pm-ico').innerHTML = p.icon;
-      $('#pm-tag').textContent = t('p.' + p.id + '.tag');
-      $('#pm-title').textContent = t('p.' + p.id + '.name');
-      $('#pm-long').textContent = t('p.' + p.id + '.long');
-      $('#pm-rating').textContent = '\u2605 ' + p.rating;
-      $('#pm-users').textContent = p.users;
-      $('#pm-platforms').innerHTML = p.platforms.map(function (pl) { return '<li>' + pl + '</li>'; }).join('');
-      dlg.dataset.product = p.id;
-
-      this.lastFocus = document.activeElement;
-      document.body.classList.add('modal-open');
-      if (typeof dlg.showModal === 'function') dlg.showModal();
-      else dlg.setAttribute('open', '');
-      $('#pm-close').focus();
-    },
-    close: function () {
-      var dlg = this.el;
-      if (!dlg) return;
-      document.body.classList.remove('modal-open');
-      if (typeof dlg.close === 'function') dlg.close();
-      else dlg.removeAttribute('open');
-      if (this.lastFocus) this.lastFocus.focus();
-    }
-  };
-
-  function initModal() {
-    var dlg = $('#product-modal');
-    if (!dlg) return;
-    modal.el = dlg;
-
-    // Open from any product card.
-    document.addEventListener('click', function (e) {
-      var link = e.target.closest('[data-product]');
-      if (!link) return;
-      e.preventDefault();
-      modal.open(link.dataset.product);
-    });
-
-    $('#pm-close').addEventListener('click', function () { modal.close(); });
-    dlg.addEventListener('cancel', function () { document.body.classList.remove('modal-open'); });
-    dlg.addEventListener('click', function (e) {
-      // A click on the backdrop lands on the dialog element itself.
-      if (e.target === dlg) modal.close();
-    });
-
-    // "Request something like this" carries the product into the form.
-    $('#pm-cta').addEventListener('click', function () {
-      var id = dlg.dataset.product;
-      var name = id ? t('p.' + id + '.name') : '';
-      modal.close();
-      var form = $('#request-form');
-      var success = $('#form-success');
-      if (form && success && form.hidden) { form.hidden = false; success.hidden = true; }
-      var appRadio = document.querySelector('input[name="type"][value="app"]');
-      if (appRadio) appRadio.checked = true;
-      var msg = $('#f-message');
-      if (msg && !msg.value.trim()) msg.value = t('modal.cta') + ': ' + name + '\n\n';
-      var contact = $('#contact');
-      if (contact) contact.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      setTimeout(function () { if (msg) { msg.focus(); msg.selectionStart = msg.value.length; } }, 600);
     });
   }
 
@@ -431,6 +374,7 @@
   /* ---------- header + mobile nav ----------------------------- */
   function initHeader() {
     var header = $('#header');
+    if (!header) return;
     var onScroll = function () {
       header.classList.toggle('is-stuck', window.scrollY > 12);
     };
@@ -596,7 +540,7 @@
   function initAnchors() {
     document.addEventListener('click', function (e) {
       var a = e.target.closest('a[href^="#"]');
-      if (!a || a.hasAttribute('data-product')) return;
+      if (!a) return;
       var id = a.getAttribute('href');
       if (id === '#' || id.length < 2) return;
       var target = document.querySelector(id);
@@ -619,11 +563,10 @@
     initReveal();
     initCounters();
     initForm();
-    initModal();
     initAnchors();
     document.body.classList.add('is-ready');
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
-})();
+})(window);

@@ -1439,11 +1439,8 @@ window.I18N.tr = {
    ============================================================= */
 
 Object.assign(window.I18N.en, {
-  'modal.about': 'About this product',
-  'modal.platforms': 'Available on',
   'modal.rating': 'Store rating',
   'modal.users': 'Active users',
-  'modal.close': 'Close',
   'modal.cta': 'Request something like this',
   'p.taskflow.long': 'TaskFlow keeps a small team on the same page without the weight of a full project suite. Boards, deadlines, a daily focus list and a weekly digest, with offline editing and instant sync when you are back online.',
   'p.medicare.long': 'MediCare handles the everyday admin of a clinic: patients book and reschedule themselves, prescriptions and notes stay in one record, and automated reminders cut no-shows. Built with data-protection rules in mind from the start.',
@@ -1454,11 +1451,8 @@ Object.assign(window.I18N.en, {
 });
 
 Object.assign(window.I18N.ar, {
-  'modal.about': 'عن هذا المنتج',
-  'modal.platforms': 'متوفّر على',
   'modal.rating': 'تقييم المتجر',
   'modal.users': 'مستخدم نشط',
-  'modal.close': 'إغلاق',
   'modal.cta': 'اطلب شيئًا مشابهًا',
   'p.taskflow.long': 'يبقي تاسك فلو الفريق الصغير على اطّلاع واحد دون ثقل أنظمة إدارة المشاريع الكبيرة: لوحات ومواعيد وقائمة تركيز يومية وملخّص أسبوعي، مع تحرير دون اتصال ومزامنة فورية عند عودة الشبكة.',
   'p.medicare.long': 'يتولّى ميدي كير الأعمال اليومية للعيادة: يحجز المرضى ويعيدون الجدولة بأنفسهم، وتبقى الوصفات والملاحظات في سجل واحد، وتقلّل التذكيرات التلقائية حالات التخلّف عن الموعد. مبني وفق قواعد حماية البيانات منذ البداية.',
@@ -1469,11 +1463,8 @@ Object.assign(window.I18N.ar, {
 });
 
 Object.assign(window.I18N.fa, {
-  'modal.about': 'درباره این محصول',
-  'modal.platforms': 'در دسترس روی',
   'modal.rating': 'امتیاز استور',
   'modal.users': 'کاربر فعال',
-  'modal.close': 'بستن',
   'modal.cta': 'درخواست چیزی شبیه این',
   'p.taskflow.long': 'تسک‌فلو تیم‌های کوچک را بدون سنگینی ابزارهای بزرگ مدیریت پروژه هماهنگ نگه می‌دارد: برد، مهلت، فهرست تمرکز روزانه و خلاصه هفتگی، همراه با ویرایش آفلاین و همگام‌سازی فوری پس از اتصال.',
   'p.medicare.long': 'مدی‌کر کارهای روزمره مطب را انجام می‌دهد: بیمار خودش نوبت می‌گیرد و جابه‌جا می‌کند، نسخه و یادداشت‌ها در یک پرونده می‌ماند و یادآوری خودکار غیبت‌ها را کم می‌کند. از همان ابتدا با در نظر گرفتن قواعد حفاظت از داده ساخته شده است.',
@@ -1484,11 +1475,8 @@ Object.assign(window.I18N.fa, {
 });
 
 Object.assign(window.I18N.fr, {
-  'modal.about': 'À propos de ce produit',
-  'modal.platforms': 'Disponible sur',
   'modal.rating': 'Note du store',
   'modal.users': 'Utilisateurs actifs',
-  'modal.close': 'Fermer',
   'modal.cta': 'Demander quelque chose de similaire',
   'p.taskflow.long': 'TaskFlow garde une petite équipe alignée sans la lourdeur d’une suite de gestion de projet. Tableaux, échéances, liste de focus quotidienne et résumé hebdomadaire, avec édition hors ligne et synchronisation immédiate au retour du réseau.',
   'p.medicare.long': 'MediCare prend en charge l’administratif quotidien d’un cabinet : les patients réservent et déplacent leurs rendez-vous eux-mêmes, ordonnances et notes restent dans un seul dossier, et les rappels automatiques réduisent les absences. Conçu dès le départ selon les règles de protection des données.',
@@ -1499,11 +1487,8 @@ Object.assign(window.I18N.fr, {
 });
 
 Object.assign(window.I18N.it, {
-  'modal.about': 'Su questo prodotto',
-  'modal.platforms': 'Disponibile su',
   'modal.rating': 'Valutazione store',
   'modal.users': 'Utenti attivi',
-  'modal.close': 'Chiudi',
   'modal.cta': 'Richiedi qualcosa di simile',
   'p.taskflow.long': 'TaskFlow tiene allineato un piccolo team senza il peso di una suite di project management. Board, scadenze, lista di focus quotidiana e riepilogo settimanale, con modifica offline e sincronizzazione immediata al ritorno della rete.',
   'p.medicare.long': 'MediCare gestisce l’amministrazione quotidiana di un ambulatorio: i pazienti prenotano e spostano da soli, ricette e note restano in un unico fascicolo e i promemoria automatici riducono le mancate presenze. Progettato fin dall’inizio secondo le regole sulla protezione dei dati.',
@@ -1514,11 +1499,8 @@ Object.assign(window.I18N.it, {
 });
 
 Object.assign(window.I18N.es, {
-  'modal.about': 'Sobre este producto',
-  'modal.platforms': 'Disponible en',
   'modal.rating': 'Valoración en la tienda',
   'modal.users': 'Usuarios activos',
-  'modal.close': 'Cerrar',
   'modal.cta': 'Solicitar algo parecido',
   'p.taskflow.long': 'TaskFlow mantiene alineado a un equipo pequeño sin el peso de una suite de gestión de proyectos. Tableros, plazos, lista de foco diaria y resumen semanal, con edición sin conexión y sincronización inmediata al recuperar la red.',
   'p.medicare.long': 'MediCare se encarga de la administración diaria de una consulta: los pacientes reservan y cambian sus citas, las recetas y notas quedan en una sola historia y los recordatorios automáticos reducen las ausencias. Pensado desde el principio según las normas de protección de datos.',
@@ -1529,11 +1511,8 @@ Object.assign(window.I18N.es, {
 });
 
 Object.assign(window.I18N.de, {
-  'modal.about': 'Über dieses Produkt',
-  'modal.platforms': 'Verfügbar für',
   'modal.rating': 'Store-Bewertung',
   'modal.users': 'Aktive Nutzer',
-  'modal.close': 'Schließen',
   'modal.cta': 'Etwas Ähnliches anfragen',
   'p.taskflow.long': 'TaskFlow hält ein kleines Team auf demselben Stand, ohne das Gewicht einer großen Projektsuite. Boards, Fristen, eine Tagesfokusliste und eine Wochenübersicht, mit Offline-Bearbeitung und sofortiger Synchronisierung, sobald das Netz zurück ist.',
   'p.medicare.long': 'MediCare übernimmt die tägliche Verwaltung einer Praxis: Patientinnen und Patienten buchen und verschieben selbst, Rezepte und Notizen bleiben in einer Akte, und automatische Erinnerungen senken Terminausfälle. Von Anfang an nach Datenschutzregeln gebaut.',
@@ -1544,11 +1523,8 @@ Object.assign(window.I18N.de, {
 });
 
 Object.assign(window.I18N.tr, {
-  'modal.about': 'Bu ürün hakkında',
-  'modal.platforms': 'Şu platformlarda',
   'modal.rating': 'Mağaza puanı',
   'modal.users': 'Aktif kullanıcı',
-  'modal.close': 'Kapat',
   'modal.cta': 'Benzer bir şey talep edin',
   'p.taskflow.long': 'TaskFlow, büyük proje yönetim paketlerinin ağırlığı olmadan küçük bir ekibi aynı sayfada tutar. Panolar, teslim tarihleri, günlük odak listesi ve haftalık özet; çevrimdışı düzenleme ve bağlantı gelince anında eşitleme ile.',
   'p.medicare.long': 'MediCare bir kliniğin günlük idari işini üstlenir: hastalar randevusunu kendi alır ve erteler, reçete ve notlar tek bir kayıtta kalır, otomatik hatırlatmalar gelmeyen hasta sayısını düşürür. Veri koruma kuralları en baştan gözetilerek geliştirildi.',
@@ -1556,4 +1532,296 @@ Object.assign(window.I18N.tr, {
   'p.fitpulse.long': 'FitPulse antrenman planını dürüst bir ilerleme takibiyle birleştirir. Seanslar gerçekten tamamladığınıza göre ayarlanır, antrenörünüzle doğrudan yazışma planı hafta hafta gerçekçi tutar.',
   'p.lingua.long': 'Lingua AI siz konuşurken dinler, telaffuzu anında düzeltir ve zorluğu seviyenize göre ayarlar. Kısa günlük seanslar, çevrimdışı tekrar kartları ve duyabileceğiniz bir ilerleme.',
   'p.vault.long': 'SecureVault parolaları, belgeleri ve kurtarma kodlarını uçtan uca şifreleyerek saklar. Cihazlarınızdan şifresiz hiçbir şey çıkmaz, her şey çevrimdışı çalışır ve bir yakınınızla ya da ekiple paylaşmak kazara değil, bilinçli bir karardır.'
+});
+
+/* =============================================================
+   Product detail pages (product.html / <id>.<lang>.html)
+   ============================================================= */
+
+Object.assign(window.I18N.en, {
+  'pd.back': 'All products',
+  'pd.overview': 'Overview',
+  'pd.highlights': 'What it does well',
+  'pd.gallery': 'A look inside',
+  'pd.specs': 'At a glance',
+  'pd.category': 'Category',
+  'pd.available': 'Available on',
+  'pd.languages': 'Languages',
+  'pd.support': 'Support',
+  'pd.supportValue': 'Email and chat, answered within one working day',
+  'pd.cta': 'Want something like this?',
+  'pd.ctaSub': 'Tell us what you need and we will send a fixed written quote.',
+  'pd.related': 'Other products',
+  'pd.notFound': 'This product does not exist.',
+
+  'pd.taskflow.h1': 'Boards, deadlines and a daily focus list in a single view.',
+  'pd.taskflow.h2': 'Works offline and syncs the moment you are back online.',
+  'pd.taskflow.h3': 'A weekly digest, so nobody has to chase status updates.',
+  'pd.medicare.h1': 'Patients book, move and cancel appointments without phoning.',
+  'pd.medicare.h2': 'Prescriptions, notes and history live in one patient record.',
+  'pd.medicare.h3': 'Automatic reminders that measurably cut no-shows.',
+  'pd.shopmate.h1': 'A storefront and a stock system that always agree.',
+  'pd.shopmate.h2': 'Barcode scanning turns stock-taking into minutes, not evenings.',
+  'pd.shopmate.h3': 'Reports on what sells, what sits, and what to reorder.',
+  'pd.fitpulse.h1': 'Plans that adapt to the sessions you actually finished.',
+  'pd.fitpulse.h2': 'Progress you can see: weights, reps and photos over time.',
+  'pd.fitpulse.h3': 'A direct line to your coach between sessions.',
+  'pd.lingua.h1': 'It listens while you speak and corrects pronunciation on the spot.',
+  'pd.lingua.h2': 'Difficulty follows your level, lesson by lesson.',
+  'pd.lingua.h3': 'Offline review cards for the commute.',
+  'pd.vault.h1': 'End-to-end encrypted: the keys never leave your device.',
+  'pd.vault.h2': 'Full access offline, and sync only when you choose.',
+  'pd.vault.h3': 'Deliberate sharing with family or team, with a clear history.'
+});
+
+Object.assign(window.I18N.ar, {
+  'pd.back': 'كل المنتجات',
+  'pd.overview': 'نظرة عامة',
+  'pd.highlights': 'ما يتقنه',
+  'pd.gallery': 'من الداخل',
+  'pd.specs': 'باختصار',
+  'pd.category': 'الفئة',
+  'pd.available': 'متوفّر على',
+  'pd.languages': 'اللغات',
+  'pd.support': 'الدعم',
+  'pd.supportValue': 'بريد ومحادثة، مع ردّ خلال يوم عمل واحد',
+  'pd.cta': 'تريد شيئًا مشابهًا؟',
+  'pd.ctaSub': 'أخبرنا بما تحتاجه وسنرسل عرض سعر ثابتًا ومكتوبًا.',
+  'pd.related': 'منتجات أخرى',
+  'pd.notFound': 'هذا المنتج غير موجود.',
+
+  'pd.taskflow.h1': 'اللوحات والمواعيد وقائمة التركيز اليومية في شاشة واحدة.',
+  'pd.taskflow.h2': 'يعمل دون اتصال ويزامن فور عودة الشبكة.',
+  'pd.taskflow.h3': 'ملخّص أسبوعي يغني عن ملاحقة تحديثات الحالة.',
+  'pd.medicare.h1': 'يحجز المرضى ويغيّرون ويلغون مواعيدهم دون اتصال هاتفي.',
+  'pd.medicare.h2': 'الوصفات والملاحظات والتاريخ الطبي في ملف واحد لكل مريض.',
+  'pd.medicare.h3': 'تذكيرات تلقائية تقلّل حالات التخلّف عن المواعيد فعليًا.',
+  'pd.shopmate.h1': 'متجر ونظام مخزون متطابقان دائمًا.',
+  'pd.shopmate.h2': 'مسح الباركود يختصر الجرد إلى دقائق بدل أمسيات كاملة.',
+  'pd.shopmate.h3': 'تقارير عمّا يُباع وما يركد وما يجب إعادة طلبه.',
+  'pd.fitpulse.h1': 'خطط تتكيّف مع الحصص التي أنجزتها فعلًا.',
+  'pd.fitpulse.h2': 'تقدّم مرئي: الأوزان والتكرارات والصور عبر الزمن.',
+  'pd.fitpulse.h3': 'تواصل مباشر مع مدرّبك بين الحصص.',
+  'pd.lingua.h1': 'يستمع إليك أثناء الحديث ويصحّح النطق في حينه.',
+  'pd.lingua.h2': 'تتبع الصعوبة مستواك درسًا بعد درس.',
+  'pd.lingua.h3': 'بطاقات مراجعة تعمل دون اتصال أثناء التنقّل.',
+  'pd.vault.h1': 'تشفير كامل من الطرف إلى الطرف: المفاتيح لا تغادر جهازك.',
+  'pd.vault.h2': 'وصول كامل دون اتصال، ومزامنة وقت تختاره أنت.',
+  'pd.vault.h3': 'مشاركة مقصودة مع العائلة أو الفريق، مع سجل واضح.'
+});
+
+Object.assign(window.I18N.fa, {
+  'pd.back': 'همه محصولات',
+  'pd.overview': 'معرفی کلی',
+  'pd.highlights': 'در چه چیزی خوب است',
+  'pd.gallery': 'نگاهی به داخل',
+  'pd.specs': 'در یک نگاه',
+  'pd.category': 'دسته‌بندی',
+  'pd.available': 'در دسترس روی',
+  'pd.languages': 'زبان‌ها',
+  'pd.support': 'پشتیبانی',
+  'pd.supportValue': 'ایمیل و گفتگو، با پاسخ ظرف یک روز کاری',
+  'pd.cta': 'چیزی شبیه این می‌خواهید؟',
+  'pd.ctaSub': 'بگویید به چه نیاز دارید تا قیمت ثابت و مکتوب برایتان بفرستیم.',
+  'pd.related': 'محصولات دیگر',
+  'pd.notFound': 'چنین محصولی وجود ندارد.',
+
+  'pd.taskflow.h1': 'برد، مهلت‌ها و فهرست تمرکز روزانه در یک صفحه.',
+  'pd.taskflow.h2': 'آفلاین کار می‌کند و به‌محض وصل‌شدن همگام می‌شود.',
+  'pd.taskflow.h3': 'خلاصه هفتگی، تا کسی مجبور نباشد وضعیت کارها را بپرسد.',
+  'pd.medicare.h1': 'بیمار بدون تماس تلفنی نوبت می‌گیرد، جابه‌جا می‌کند و لغو می‌کند.',
+  'pd.medicare.h2': 'نسخه، یادداشت و سابقه در یک پرونده برای هر بیمار.',
+  'pd.medicare.h3': 'یادآوری خودکار که غیبت بیماران را به‌طور محسوس کم می‌کند.',
+  'pd.shopmate.h1': 'فروشگاه و انبار که همیشه با هم می‌خوانند.',
+  'pd.shopmate.h2': 'بارکدخوان، انبارگردانی را از چند شب به چند دقیقه می‌رساند.',
+  'pd.shopmate.h3': 'گزارش اینکه چه می‌فروشد، چه می‌ماند و چه باید سفارش داد.',
+  'pd.fitpulse.h1': 'برنامه‌ای که با تمرین‌هایی که واقعاً انجام داده‌اید تنظیم می‌شود.',
+  'pd.fitpulse.h2': 'پیشرفت قابل دیدن: وزنه، تکرار و عکس در طول زمان.',
+  'pd.fitpulse.h3': 'ارتباط مستقیم با مربی بین جلسه‌ها.',
+  'pd.lingua.h1': 'هنگام صحبت گوش می‌دهد و تلفظ را همان لحظه اصلاح می‌کند.',
+  'pd.lingua.h2': 'سختی تمرین درس به درس با سطح شما بالا می‌رود.',
+  'pd.lingua.h3': 'کارت‌های مرور آفلاین برای وقت رفت‌وآمد.',
+  'pd.vault.h1': 'رمزنگاری سرتاسری؛ کلیدها هرگز از دستگاه شما خارج نمی‌شوند.',
+  'pd.vault.h2': 'دسترسی کامل آفلاین، و همگام‌سازی فقط وقتی خودتان بخواهید.',
+  'pd.vault.h3': 'اشتراک‌گذاری آگاهانه با خانواده یا تیم، با تاریخچه روشن.'
+});
+
+Object.assign(window.I18N.fr, {
+  'pd.back': 'Tous les produits',
+  'pd.overview': 'Présentation',
+  'pd.highlights': 'Ses points forts',
+  'pd.gallery': 'Un aperçu',
+  'pd.specs': 'En bref',
+  'pd.category': 'Catégorie',
+  'pd.available': 'Disponible sur',
+  'pd.languages': 'Langues',
+  'pd.support': 'Assistance',
+  'pd.supportValue': 'E-mail et chat, réponse sous un jour ouvré',
+  'pd.cta': 'Vous voulez quelque chose de similaire ?',
+  'pd.ctaSub': 'Dites-nous ce qu’il vous faut et nous envoyons un devis fixe par écrit.',
+  'pd.related': 'Autres produits',
+  'pd.notFound': 'Ce produit n’existe pas.',
+
+  'pd.taskflow.h1': 'Tableaux, échéances et liste de focus quotidienne sur un seul écran.',
+  'pd.taskflow.h2': 'Fonctionne hors ligne et se synchronise dès le retour du réseau.',
+  'pd.taskflow.h3': 'Un résumé hebdomadaire, pour ne plus courir après les mises à jour.',
+  'pd.medicare.h1': 'Les patients réservent, déplacent et annulent sans téléphoner.',
+  'pd.medicare.h2': 'Ordonnances, notes et antécédents dans un seul dossier patient.',
+  'pd.medicare.h3': 'Des rappels automatiques qui réduisent nettement les absences.',
+  'pd.shopmate.h1': 'Une boutique et un stock qui concordent en permanence.',
+  'pd.shopmate.h2': 'La lecture de codes-barres réduit l’inventaire à quelques minutes.',
+  'pd.shopmate.h3': 'Des rapports sur ce qui se vend, ce qui dort et ce qu’il faut recommander.',
+  'pd.fitpulse.h1': 'Des plans qui s’adaptent aux séances réellement terminées.',
+  'pd.fitpulse.h2': 'Des progrès visibles : charges, répétitions et photos dans le temps.',
+  'pd.fitpulse.h3': 'Un lien direct avec votre coach entre les séances.',
+  'pd.lingua.h1': 'Il vous écoute parler et corrige la prononciation sur le moment.',
+  'pd.lingua.h2': 'La difficulté suit votre niveau, leçon après leçon.',
+  'pd.lingua.h3': 'Des cartes de révision hors ligne pour les trajets.',
+  'pd.vault.h1': 'Chiffrement de bout en bout : les clés ne quittent jamais votre appareil.',
+  'pd.vault.h2': 'Accès complet hors ligne, synchronisation quand vous le décidez.',
+  'pd.vault.h3': 'Un partage volontaire avec vos proches ou votre équipe, avec un historique clair.'
+});
+
+Object.assign(window.I18N.it, {
+  'pd.back': 'Tutti i prodotti',
+  'pd.overview': 'Panoramica',
+  'pd.highlights': 'I suoi punti di forza',
+  'pd.gallery': 'Uno sguardo dentro',
+  'pd.specs': 'In sintesi',
+  'pd.category': 'Categoria',
+  'pd.available': 'Disponibile su',
+  'pd.languages': 'Lingue',
+  'pd.support': 'Assistenza',
+  'pd.supportValue': 'E-mail e chat, risposta entro un giorno lavorativo',
+  'pd.cta': 'Vuoi qualcosa di simile?',
+  'pd.ctaSub': 'Dicci di cosa hai bisogno e ti inviamo un preventivo fisso e scritto.',
+  'pd.related': 'Altri prodotti',
+  'pd.notFound': 'Questo prodotto non esiste.',
+
+  'pd.taskflow.h1': 'Board, scadenze e lista di focus quotidiana in un’unica schermata.',
+  'pd.taskflow.h2': 'Funziona offline e si sincronizza appena torna la rete.',
+  'pd.taskflow.h3': 'Un riepilogo settimanale, così nessuno deve rincorrere gli aggiornamenti.',
+  'pd.medicare.h1': 'I pazienti prenotano, spostano e disdicono senza telefonare.',
+  'pd.medicare.h2': 'Ricette, note e storico in un unico fascicolo del paziente.',
+  'pd.medicare.h3': 'Promemoria automatici che riducono in modo misurabile le assenze.',
+  'pd.shopmate.h1': 'Vetrina e magazzino sempre allineati.',
+  'pd.shopmate.h2': 'La lettura dei codici a barre riduce l’inventario a pochi minuti.',
+  'pd.shopmate.h3': 'Report su cosa vende, cosa resta fermo e cosa riordinare.',
+  'pd.fitpulse.h1': 'Programmi che si adattano alle sedute davvero completate.',
+  'pd.fitpulse.h2': 'Progressi visibili: carichi, ripetizioni e foto nel tempo.',
+  'pd.fitpulse.h3': 'Un filo diretto con il coach tra una seduta e l’altra.',
+  'pd.lingua.h1': 'Ti ascolta mentre parli e corregge la pronuncia sul momento.',
+  'pd.lingua.h2': 'La difficoltà segue il tuo livello, lezione dopo lezione.',
+  'pd.lingua.h3': 'Schede di ripasso offline per gli spostamenti.',
+  'pd.vault.h1': 'Cifratura end-to-end: le chiavi non lasciano mai il tuo dispositivo.',
+  'pd.vault.h2': 'Accesso completo offline e sincronizzazione solo quando vuoi tu.',
+  'pd.vault.h3': 'Condivisione consapevole con famiglia o team, con una cronologia chiara.'
+});
+
+Object.assign(window.I18N.es, {
+  'pd.back': 'Todos los productos',
+  'pd.overview': 'Descripción',
+  'pd.highlights': 'En qué destaca',
+  'pd.gallery': 'Un vistazo por dentro',
+  'pd.specs': 'De un vistazo',
+  'pd.category': 'Categoría',
+  'pd.available': 'Disponible en',
+  'pd.languages': 'Idiomas',
+  'pd.support': 'Soporte',
+  'pd.supportValue': 'Correo y chat, con respuesta en un día laborable',
+  'pd.cta': '¿Quieres algo parecido?',
+  'pd.ctaSub': 'Cuéntanos qué necesitas y te enviamos un presupuesto cerrado por escrito.',
+  'pd.related': 'Otros productos',
+  'pd.notFound': 'Este producto no existe.',
+
+  'pd.taskflow.h1': 'Tableros, plazos y lista de foco diaria en una sola pantalla.',
+  'pd.taskflow.h2': 'Funciona sin conexión y sincroniza en cuanto vuelves a estar en línea.',
+  'pd.taskflow.h3': 'Un resumen semanal, para que nadie tenga que perseguir el estado.',
+  'pd.medicare.h1': 'Los pacientes reservan, cambian y cancelan sin llamar por teléfono.',
+  'pd.medicare.h2': 'Recetas, notas e historial en una sola ficha del paciente.',
+  'pd.medicare.h3': 'Recordatorios automáticos que reducen de forma medible las ausencias.',
+  'pd.shopmate.h1': 'Una tienda y un inventario que siempre coinciden.',
+  'pd.shopmate.h2': 'El escaneo de códigos de barras deja el inventario en minutos.',
+  'pd.shopmate.h3': 'Informes de qué se vende, qué se queda parado y qué hay que reponer.',
+  'pd.fitpulse.h1': 'Planes que se adaptan a las sesiones que de verdad completaste.',
+  'pd.fitpulse.h2': 'Progreso visible: cargas, repeticiones y fotos a lo largo del tiempo.',
+  'pd.fitpulse.h3': 'Línea directa con tu entrenador entre sesiones.',
+  'pd.lingua.h1': 'Te escucha mientras hablas y corrige la pronunciación al instante.',
+  'pd.lingua.h2': 'La dificultad sigue tu nivel, lección a lección.',
+  'pd.lingua.h3': 'Tarjetas de repaso sin conexión para el trayecto.',
+  'pd.vault.h1': 'Cifrado de extremo a extremo: las claves nunca salen de tu dispositivo.',
+  'pd.vault.h2': 'Acceso completo sin conexión y sincronización solo cuando tú decides.',
+  'pd.vault.h3': 'Compartir de forma deliberada con familia o equipo, con un historial claro.'
+});
+
+Object.assign(window.I18N.de, {
+  'pd.back': 'Alle Produkte',
+  'pd.overview': 'Überblick',
+  'pd.highlights': 'Was es besonders gut kann',
+  'pd.gallery': 'Ein Blick hinein',
+  'pd.specs': 'Auf einen Blick',
+  'pd.category': 'Kategorie',
+  'pd.available': 'Verfügbar für',
+  'pd.languages': 'Sprachen',
+  'pd.support': 'Support',
+  'pd.supportValue': 'E-Mail und Chat, Antwort innerhalb eines Werktags',
+  'pd.cta': 'Sie möchten etwas Ähnliches?',
+  'pd.ctaSub': 'Sagen Sie uns, was Sie brauchen — Sie erhalten ein schriftliches Festpreisangebot.',
+  'pd.related': 'Weitere Produkte',
+  'pd.notFound': 'Dieses Produkt gibt es nicht.',
+
+  'pd.taskflow.h1': 'Boards, Fristen und Tagesfokus auf einem Bildschirm.',
+  'pd.taskflow.h2': 'Funktioniert offline und synchronisiert, sobald das Netz zurück ist.',
+  'pd.taskflow.h3': 'Ein Wochenüberblick, damit niemand Statusmeldungen einsammeln muss.',
+  'pd.medicare.h1': 'Patientinnen und Patienten buchen, verschieben und stornieren ohne Anruf.',
+  'pd.medicare.h2': 'Rezepte, Notizen und Historie in einer einzigen Akte.',
+  'pd.medicare.h3': 'Automatische Erinnerungen, die Terminausfälle messbar senken.',
+  'pd.shopmate.h1': 'Onlineshop und Lagerbestand, die immer zusammenpassen.',
+  'pd.shopmate.h2': 'Barcode-Scan macht aus der Inventur Minuten statt Abende.',
+  'pd.shopmate.h3': 'Auswertungen dazu, was sich verkauft, was liegen bleibt und was nachbestellt gehört.',
+  'pd.fitpulse.h1': 'Pläne, die sich an die tatsächlich absolvierten Einheiten anpassen.',
+  'pd.fitpulse.h2': 'Sichtbarer Fortschritt: Gewichte, Wiederholungen und Fotos über die Zeit.',
+  'pd.fitpulse.h3': 'Ein direkter Draht zum Coach zwischen den Einheiten.',
+  'pd.lingua.h1': 'Hört beim Sprechen zu und korrigiert die Aussprache sofort.',
+  'pd.lingua.h2': 'Die Schwierigkeit folgt Ihrem Niveau, Lektion für Lektion.',
+  'pd.lingua.h3': 'Offline-Wiederholungskarten für den Weg zur Arbeit.',
+  'pd.vault.h1': 'Ende-zu-Ende verschlüsselt: Die Schlüssel verlassen Ihr Gerät nie.',
+  'pd.vault.h2': 'Voller Zugriff offline, Synchronisierung nur wenn Sie es wollen.',
+  'pd.vault.h3': 'Bewusstes Teilen mit Familie oder Team, mit klarer Historie.'
+});
+
+Object.assign(window.I18N.tr, {
+  'pd.back': 'Tüm ürünler',
+  'pd.overview': 'Genel bakış',
+  'pd.highlights': 'İyi yaptığı şeyler',
+  'pd.gallery': 'İçeriden bir bakış',
+  'pd.specs': 'Kısaca',
+  'pd.category': 'Kategori',
+  'pd.available': 'Şu platformlarda',
+  'pd.languages': 'Diller',
+  'pd.support': 'Destek',
+  'pd.supportValue': 'E-posta ve sohbet, bir iş günü içinde yanıt',
+  'pd.cta': 'Benzer bir şey mi istiyorsunuz?',
+  'pd.ctaSub': 'Neye ihtiyacınız olduğunu anlatın, yazılı sabit fiyat gönderelim.',
+  'pd.related': 'Diğer ürünler',
+  'pd.notFound': 'Böyle bir ürün yok.',
+
+  'pd.taskflow.h1': 'Panolar, teslim tarihleri ve günlük odak listesi tek ekranda.',
+  'pd.taskflow.h2': 'Çevrimdışı çalışır, bağlantı gelir gelmez eşitlenir.',
+  'pd.taskflow.h3': 'Haftalık özet sayesinde kimse durum sormak zorunda kalmaz.',
+  'pd.medicare.h1': 'Hastalar telefon etmeden randevu alır, erteler ve iptal eder.',
+  'pd.medicare.h2': 'Reçete, not ve geçmiş tek bir hasta kaydında.',
+  'pd.medicare.h3': 'Gelmeyen hasta sayısını gözle görülür azaltan otomatik hatırlatmalar.',
+  'pd.shopmate.h1': 'Her zaman birbiriyle uyumlu bir vitrin ve stok sistemi.',
+  'pd.shopmate.h2': 'Barkod okuma, sayımı akşamlardan dakikalara indirir.',
+  'pd.shopmate.h3': 'Ne satıyor, ne bekliyor, ne sipariş edilmeli — hepsi raporda.',
+  'pd.fitpulse.h1': 'Gerçekten tamamladığınız seanslara göre ayarlanan planlar.',
+  'pd.fitpulse.h2': 'Görülebilir ilerleme: zamanla ağırlıklar, tekrarlar ve fotoğraflar.',
+  'pd.fitpulse.h3': 'Seanslar arasında antrenörünüzle doğrudan iletişim.',
+  'pd.lingua.h1': 'Siz konuşurken dinler ve telaffuzu anında düzeltir.',
+  'pd.lingua.h2': 'Zorluk, ders ders seviyenizi takip eder.',
+  'pd.lingua.h3': 'Yolda kullanmak için çevrimdışı tekrar kartları.',
+  'pd.vault.h1': 'Uçtan uca şifreli: anahtarlar cihazınızdan hiç çıkmaz.',
+  'pd.vault.h2': 'Çevrimdışı tam erişim, eşitleme yalnızca siz istediğinizde.',
+  'pd.vault.h3': 'Aile veya ekiple bilinçli paylaşım, net bir geçmiş kaydıyla.'
 });
