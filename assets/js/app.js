@@ -74,6 +74,7 @@
     });
 
     renderProducts();
+    updateSeo();
     if (persist !== false) store.set('mas.lang', code);
     var u = new URL(location.href);
     u.searchParams.set('lang', code);
@@ -120,6 +121,98 @@
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
   }
 
+  /* ---------- SEO: canonical, hreflang, structured data -------- */
+  function upsertLink(rel, href, hreflang) {
+    var sel = 'link[rel="' + rel + '"]' + (hreflang ? '[hreflang="' + hreflang + '"]' : '');
+    var el = document.head.querySelector(sel);
+    if (!el) {
+      el = document.createElement('link');
+      el.rel = rel;
+      if (hreflang) el.hreflang = hreflang;
+      document.head.appendChild(el);
+    }
+    el.href = href;
+  }
+
+  function setMeta(selector, value) {
+    var el = document.head.querySelector(selector);
+    if (el) el.setAttribute('content', value);
+  }
+
+  function updateSeo() {
+    var base = location.origin + location.pathname;
+    var img = base.replace(/[^/]*$/, '') + 'assets/img/og.png';
+
+    upsertLink('canonical', base + '?lang=' + state.lang);
+    setMeta('meta[property="og:url"]', base + '?lang=' + state.lang);
+    setMeta('meta[property="og:image"]', img);
+    setMeta('meta[name="twitter:image"]', img);
+    setMeta('meta[property="og:locale"]', state.lang);
+    LANGS.forEach(function (l) { upsertLink('alternate', base + '?lang=' + l.code, l.code); });
+    upsertLink('alternate', base, 'x-default');
+
+    var faq = [];
+    for (var i = 1; i <= 6; i++) {
+      faq.push({
+        '@type': 'Question',
+        name: t('faq.' + i + '.q'),
+        acceptedAnswer: { '@type': 'Answer', text: t('faq.' + i + '.a') }
+      });
+    }
+
+    var data = {
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'Organization',
+          '@id': base + '#org',
+          name: 'MyAppShop',
+          url: base,
+          description: t('meta.desc'),
+          email: CONFIG.contactEmail,
+          slogan: t('footer.tagline'),
+          knowsLanguage: LANGS.map(function (l) { return l.code; })
+        },
+        {
+          '@type': 'WebSite',
+          '@id': base + '#site',
+          url: base,
+          name: 'MyAppShop',
+          inLanguage: state.lang,
+          publisher: { '@id': base + '#org' }
+        },
+        {
+          '@type': 'ItemList',
+          name: t('products.title'),
+          itemListElement: (window.PRODUCTS || []).map(function (p, i) {
+            return {
+              '@type': 'ListItem',
+              position: i + 1,
+              item: {
+                '@type': 'SoftwareApplication',
+                name: t('p.' + p.id + '.name'),
+                description: t('p.' + p.id + '.desc'),
+                applicationCategory: t('p.' + p.id + '.tag'),
+                operatingSystem: p.platforms.join(', '),
+                aggregateRating: { '@type': 'AggregateRating', ratingValue: p.rating, bestRating: '5', ratingCount: 100 }
+              }
+            };
+          })
+        },
+        { '@type': 'FAQPage', mainEntity: faq }
+      ]
+    };
+
+    var tag = document.getElementById('ld-json');
+    if (!tag) {
+      tag = document.createElement('script');
+      tag.type = 'application/ld+json';
+      tag.id = 'ld-json';
+      document.head.appendChild(tag);
+    }
+    tag.textContent = JSON.stringify(data);
+  }
+
   /* ---------- theme ------------------------------------------ */
   function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
@@ -160,7 +253,7 @@
           }).join('') + '</ul>' +
           '<div class="product-foot">' +
             '<span class="rating">★ ' + p.rating + '<i>· ' + p.users + '</i></span>' +
-            '<a class="product-link" href="' + p.link + '">' + t('products.view') +
+            '<a class="product-link" href="' + p.link + '" data-product="' + p.id + '">' + t('products.view') +
               '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h13M13 6l6 6-6 6"/></svg>' +
             '</a>' +
           '</div>' +
@@ -184,6 +277,79 @@
       });
       state.filter = chip.dataset.filter;
       renderProducts();
+    });
+  }
+
+  /* ---------- product dialog --------------------------------- */
+  var modal = {
+    el: null,
+    lastFocus: null,
+    open: function (id) {
+      var p = (window.PRODUCTS || []).filter(function (x) { return x.id === id; })[0];
+      var dlg = this.el;
+      if (!p || !dlg) return;
+
+      dlg.style.setProperty('--accent', p.accent);
+      $('#pm-ico').innerHTML = p.icon;
+      $('#pm-tag').textContent = t('p.' + p.id + '.tag');
+      $('#pm-title').textContent = t('p.' + p.id + '.name');
+      $('#pm-long').textContent = t('p.' + p.id + '.long');
+      $('#pm-rating').textContent = '\u2605 ' + p.rating;
+      $('#pm-users').textContent = p.users;
+      $('#pm-platforms').innerHTML = p.platforms.map(function (pl) { return '<li>' + pl + '</li>'; }).join('');
+      dlg.dataset.product = p.id;
+
+      this.lastFocus = document.activeElement;
+      document.body.classList.add('modal-open');
+      if (typeof dlg.showModal === 'function') dlg.showModal();
+      else dlg.setAttribute('open', '');
+      $('#pm-close').focus();
+    },
+    close: function () {
+      var dlg = this.el;
+      if (!dlg) return;
+      document.body.classList.remove('modal-open');
+      if (typeof dlg.close === 'function') dlg.close();
+      else dlg.removeAttribute('open');
+      if (this.lastFocus) this.lastFocus.focus();
+    }
+  };
+
+  function initModal() {
+    var dlg = $('#product-modal');
+    if (!dlg) return;
+    modal.el = dlg;
+
+    // Open from any product card.
+    document.addEventListener('click', function (e) {
+      var link = e.target.closest('[data-product]');
+      if (!link) return;
+      e.preventDefault();
+      modal.open(link.dataset.product);
+    });
+
+    $('#pm-close').addEventListener('click', function () { modal.close(); });
+    dlg.addEventListener('cancel', function () { document.body.classList.remove('modal-open'); });
+    dlg.addEventListener('click', function (e) {
+      // A click on the backdrop lands on the dialog element itself.
+      if (e.target === dlg) modal.close();
+    });
+
+    // "Request something like this" carries the product into the form.
+    $('#pm-cta').addEventListener('click', function () {
+      var id = dlg.dataset.product;
+      var name = id ? t('p.' + id + '.name') : '';
+      modal.close();
+      var form = $('#request-form');
+      var success = $('#form-success');
+      if (form && success && form.hidden) { form.hidden = false; success.hidden = true; }
+      var appRadio = document.querySelector('input[name="type"][value="app"]');
+      if (appRadio) appRadio.checked = true;
+      var msg = $('#f-message');
+      if (msg && !msg.value.trim()) msg.value = t('modal.cta') + ': ' + name + '\n\n';
+      var contact = $('#contact');
+      if (contact) contact.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setTimeout(function () { if (msg) { msg.focus(); msg.selectionStart = msg.value.length; } }, 600);
     });
   }
 
@@ -408,7 +574,7 @@
   function initAnchors() {
     document.addEventListener('click', function (e) {
       var a = e.target.closest('a[href^="#"]');
-      if (!a) return;
+      if (!a || a.hasAttribute('data-product')) return;
       var id = a.getAttribute('href');
       if (id === '#' || id.length < 2) return;
       var target = document.querySelector(id);
@@ -431,6 +597,7 @@
     initReveal();
     initCounters();
     initForm();
+    initModal();
     initAnchors();
     document.body.classList.add('is-ready');
   }

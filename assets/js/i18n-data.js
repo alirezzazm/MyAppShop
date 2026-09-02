@@ -1432,3 +1432,128 @@ window.I18N.tr = {
   'footer.rights': 'Tüm hakları saklıdır.',
   'footer.backTop': 'Yukarı dön'
 };
+
+/* =============================================================
+   Product detail dialog — added as an augmentation block so the
+   dictionaries above stay easy to diff. Same fallback rules apply.
+   ============================================================= */
+
+Object.assign(window.I18N.en, {
+  'modal.about': 'About this product',
+  'modal.platforms': 'Available on',
+  'modal.rating': 'Store rating',
+  'modal.users': 'Active users',
+  'modal.close': 'Close',
+  'modal.cta': 'Request something like this',
+  'p.taskflow.long': 'TaskFlow keeps a small team on the same page without the weight of a full project suite. Boards, deadlines, a daily focus list and a weekly digest, with offline editing and instant sync when you are back online.',
+  'p.medicare.long': 'MediCare handles the everyday admin of a clinic: patients book and reschedule themselves, prescriptions and notes stay in one record, and automated reminders cut no-shows. Built with data-protection rules in mind from the start.',
+  'p.shopmate.long': 'ShopMate gives a small shop a real storefront and a stock system that agree with each other. Orders, inventory, suppliers and receipts in one place, with barcode scanning and reports you can act on.',
+  'p.fitpulse.long': 'FitPulse pairs a training plan with honest progress tracking. Workouts adapt to what you actually completed, and a direct chat with your coach keeps the plan realistic week to week.',
+  'p.lingua.long': 'Lingua AI listens while you speak, corrects pronunciation in the moment and shifts difficulty to match your level. Short daily sessions, offline review cards and progress you can hear.',
+  'p.vault.long': 'SecureVault stores passwords, documents and recovery codes with end-to-end encryption. Nothing leaves your devices unencrypted, everything works offline, and sharing with a partner or team is deliberate rather than accidental.'
+});
+
+Object.assign(window.I18N.ar, {
+  'modal.about': 'عن هذا المنتج',
+  'modal.platforms': 'متوفّر على',
+  'modal.rating': 'تقييم المتجر',
+  'modal.users': 'مستخدم نشط',
+  'modal.close': 'إغلاق',
+  'modal.cta': 'اطلب شيئًا مشابهًا',
+  'p.taskflow.long': 'يبقي تاسك فلو الفريق الصغير على اطّلاع واحد دون ثقل أنظمة إدارة المشاريع الكبيرة: لوحات ومواعيد وقائمة تركيز يومية وملخّص أسبوعي، مع تحرير دون اتصال ومزامنة فورية عند عودة الشبكة.',
+  'p.medicare.long': 'يتولّى ميدي كير الأعمال اليومية للعيادة: يحجز المرضى ويعيدون الجدولة بأنفسهم، وتبقى الوصفات والملاحظات في سجل واحد، وتقلّل التذكيرات التلقائية حالات التخلّف عن الموعد. مبني وفق قواعد حماية البيانات منذ البداية.',
+  'p.shopmate.long': 'يمنح شوب ميت المحل الصغير متجرًا حقيقيًا ونظام مخزون متوافقًا معه: الطلبات والمخزون والموردون والفواتير في مكان واحد، مع مسح الباركود وتقارير قابلة للتنفيذ.',
+  'p.fitpulse.long': 'يجمع فيت بالس بين خطة تدريب ومتابعة صادقة للتقدّم؛ تتكيّف التمارين مع ما أنجزته فعلًا، وتبقي المحادثة المباشرة مع المدرّب الخطة واقعية أسبوعًا بعد أسبوع.',
+  'p.lingua.long': 'يستمع لينغوا AI إليك أثناء الحديث، ويصحّح النطق في حينه، ويعدّل الصعوبة وفق مستواك. جلسات يومية قصيرة وبطاقات مراجعة دون اتصال وتقدّم يمكنك سماعه.',
+  'p.vault.long': 'يخزّن سيكيور فولت كلمات المرور والمستندات ورموز الاسترداد بتشفير كامل من الطرف إلى الطرف. لا يغادر جهازك شيء غير مشفّر، وكل شيء يعمل دون اتصال، والمشاركة مع شريك أو فريق تتم بقرار واضح لا بالخطأ.'
+});
+
+Object.assign(window.I18N.fa, {
+  'modal.about': 'درباره این محصول',
+  'modal.platforms': 'در دسترس روی',
+  'modal.rating': 'امتیاز استور',
+  'modal.users': 'کاربر فعال',
+  'modal.close': 'بستن',
+  'modal.cta': 'درخواست چیزی شبیه این',
+  'p.taskflow.long': 'تسک‌فلو تیم‌های کوچک را بدون سنگینی ابزارهای بزرگ مدیریت پروژه هماهنگ نگه می‌دارد: برد، مهلت، فهرست تمرکز روزانه و خلاصه هفتگی، همراه با ویرایش آفلاین و همگام‌سازی فوری پس از اتصال.',
+  'p.medicare.long': 'مدی‌کر کارهای روزمره مطب را انجام می‌دهد: بیمار خودش نوبت می‌گیرد و جابه‌جا می‌کند، نسخه و یادداشت‌ها در یک پرونده می‌ماند و یادآوری خودکار غیبت‌ها را کم می‌کند. از همان ابتدا با در نظر گرفتن قواعد حفاظت از داده ساخته شده است.',
+  'p.shopmate.long': 'شاپ‌میت به یک مغازه کوچک هم فروشگاه واقعی می‌دهد و هم انبارداری هماهنگ با آن: سفارش، موجودی، تأمین‌کننده و فاکتور در یک جا، همراه با بارکدخوان و گزارش‌هایی که می‌شود بر اساسشان تصمیم گرفت.',
+  'p.fitpulse.long': 'فیت‌پالس برنامه تمرین را با ثبت صادقانه پیشرفت ترکیب می‌کند؛ تمرین‌ها بر اساس آنچه واقعاً انجام داده‌اید تنظیم می‌شوند و گفتگوی مستقیم با مربی برنامه را هفته به هفته واقع‌بینانه نگه می‌دارد.',
+  'p.lingua.long': 'لینگوا AI هنگام صحبت به شما گوش می‌دهد، تلفظ را همان لحظه اصلاح می‌کند و سختی تمرین را با سطح شما تنظیم می‌کند. جلسه‌های کوتاه روزانه، کارت‌های مرور آفلاین و پیشرفتی که می‌توانید بشنوید.',
+  'p.vault.long': 'سکیورولت رمزها، اسناد و کدهای بازیابی را با رمزنگاری سرتاسری نگه می‌دارد. هیچ چیز رمزنگاری‌نشده از دستگاه شما خارج نمی‌شود، همه‌چیز آفلاین کار می‌کند و اشتراک‌گذاری با همکار یا خانواده یک تصمیم آگاهانه است نه یک اتفاق.'
+});
+
+Object.assign(window.I18N.fr, {
+  'modal.about': 'À propos de ce produit',
+  'modal.platforms': 'Disponible sur',
+  'modal.rating': 'Note du store',
+  'modal.users': 'Utilisateurs actifs',
+  'modal.close': 'Fermer',
+  'modal.cta': 'Demander quelque chose de similaire',
+  'p.taskflow.long': 'TaskFlow garde une petite équipe alignée sans la lourdeur d’une suite de gestion de projet. Tableaux, échéances, liste de focus quotidienne et résumé hebdomadaire, avec édition hors ligne et synchronisation immédiate au retour du réseau.',
+  'p.medicare.long': 'MediCare prend en charge l’administratif quotidien d’un cabinet : les patients réservent et déplacent leurs rendez-vous eux-mêmes, ordonnances et notes restent dans un seul dossier, et les rappels automatiques réduisent les absences. Conçu dès le départ selon les règles de protection des données.',
+  'p.shopmate.long': 'ShopMate donne à un petit commerce une vraie boutique en ligne et une gestion de stock qui concorde avec elle. Commandes, inventaire, fournisseurs et reçus au même endroit, avec lecture de codes-barres et des rapports exploitables.',
+  'p.fitpulse.long': 'FitPulse associe un plan d’entraînement à un suivi honnête des progrès. Les séances s’adaptent à ce que vous avez réellement fait, et un échange direct avec votre coach garde le plan réaliste semaine après semaine.',
+  'p.lingua.long': 'Lingua AI vous écoute parler, corrige la prononciation sur le moment et ajuste la difficulté à votre niveau. Séances courtes quotidiennes, cartes de révision hors ligne et des progrès que vous entendez.',
+  'p.vault.long': 'SecureVault conserve mots de passe, documents et codes de récupération avec un chiffrement de bout en bout. Rien ne quitte vos appareils en clair, tout fonctionne hors ligne, et le partage avec un proche ou une équipe reste un choix délibéré.'
+});
+
+Object.assign(window.I18N.it, {
+  'modal.about': 'Su questo prodotto',
+  'modal.platforms': 'Disponibile su',
+  'modal.rating': 'Valutazione store',
+  'modal.users': 'Utenti attivi',
+  'modal.close': 'Chiudi',
+  'modal.cta': 'Richiedi qualcosa di simile',
+  'p.taskflow.long': 'TaskFlow tiene allineato un piccolo team senza il peso di una suite di project management. Board, scadenze, lista di focus quotidiana e riepilogo settimanale, con modifica offline e sincronizzazione immediata al ritorno della rete.',
+  'p.medicare.long': 'MediCare gestisce l’amministrazione quotidiana di un ambulatorio: i pazienti prenotano e spostano da soli, ricette e note restano in un unico fascicolo e i promemoria automatici riducono le mancate presenze. Progettato fin dall’inizio secondo le regole sulla protezione dei dati.',
+  'p.shopmate.long': 'ShopMate dà a un piccolo negozio una vera vetrina online e una gestione del magazzino coerente con essa. Ordini, scorte, fornitori e ricevute in un unico posto, con lettura dei codici a barre e report utilizzabili.',
+  'p.fitpulse.long': 'FitPulse unisce un piano di allenamento a un monitoraggio onesto dei progressi. Le sedute si adattano a ciò che hai davvero completato e il contatto diretto con il coach mantiene il piano realistico settimana dopo settimana.',
+  'p.lingua.long': 'Lingua AI ti ascolta mentre parli, corregge la pronuncia sul momento e adatta la difficoltà al tuo livello. Sessioni brevi ogni giorno, schede di ripasso offline e progressi che puoi sentire.',
+  'p.vault.long': 'SecureVault custodisce password, documenti e codici di recupero con cifratura end-to-end. Nulla lascia i tuoi dispositivi in chiaro, tutto funziona offline e la condivisione con un familiare o un team è una scelta consapevole, non un incidente.'
+});
+
+Object.assign(window.I18N.es, {
+  'modal.about': 'Sobre este producto',
+  'modal.platforms': 'Disponible en',
+  'modal.rating': 'Valoración en la tienda',
+  'modal.users': 'Usuarios activos',
+  'modal.close': 'Cerrar',
+  'modal.cta': 'Solicitar algo parecido',
+  'p.taskflow.long': 'TaskFlow mantiene alineado a un equipo pequeño sin el peso de una suite de gestión de proyectos. Tableros, plazos, lista de foco diaria y resumen semanal, con edición sin conexión y sincronización inmediata al recuperar la red.',
+  'p.medicare.long': 'MediCare se encarga de la administración diaria de una consulta: los pacientes reservan y cambian sus citas, las recetas y notas quedan en una sola historia y los recordatorios automáticos reducen las ausencias. Pensado desde el principio según las normas de protección de datos.',
+  'p.shopmate.long': 'ShopMate da a un comercio pequeño una tienda online de verdad y un control de stock que concuerda con ella. Pedidos, inventario, proveedores y recibos en un mismo sitio, con lectura de códigos de barras e informes accionables.',
+  'p.fitpulse.long': 'FitPulse combina un plan de entrenamiento con un seguimiento honesto del progreso. Las sesiones se ajustan a lo que realmente completaste y el contacto directo con tu entrenador mantiene el plan realista semana a semana.',
+  'p.lingua.long': 'Lingua AI te escucha mientras hablas, corrige la pronunciación al momento y ajusta la dificultad a tu nivel. Sesiones cortas diarias, tarjetas de repaso sin conexión y un progreso que puedes oír.',
+  'p.vault.long': 'SecureVault guarda contraseñas, documentos y códigos de recuperación con cifrado de extremo a extremo. Nada sale de tus dispositivos sin cifrar, todo funciona sin conexión y compartir con alguien de confianza o con un equipo es una decisión deliberada.'
+});
+
+Object.assign(window.I18N.de, {
+  'modal.about': 'Über dieses Produkt',
+  'modal.platforms': 'Verfügbar für',
+  'modal.rating': 'Store-Bewertung',
+  'modal.users': 'Aktive Nutzer',
+  'modal.close': 'Schließen',
+  'modal.cta': 'Etwas Ähnliches anfragen',
+  'p.taskflow.long': 'TaskFlow hält ein kleines Team auf demselben Stand, ohne das Gewicht einer großen Projektsuite. Boards, Fristen, eine Tagesfokusliste und eine Wochenübersicht, mit Offline-Bearbeitung und sofortiger Synchronisierung, sobald das Netz zurück ist.',
+  'p.medicare.long': 'MediCare übernimmt die tägliche Verwaltung einer Praxis: Patientinnen und Patienten buchen und verschieben selbst, Rezepte und Notizen bleiben in einer Akte, und automatische Erinnerungen senken Terminausfälle. Von Anfang an nach Datenschutzregeln gebaut.',
+  'p.shopmate.long': 'ShopMate gibt einem kleinen Geschäft einen echten Onlineshop und eine Warenwirtschaft, die dazu passt. Bestellungen, Bestand, Lieferanten und Belege an einem Ort, mit Barcode-Scan und Berichten, mit denen sich arbeiten lässt.',
+  'p.fitpulse.long': 'FitPulse verbindet einen Trainingsplan mit ehrlicher Fortschrittskontrolle. Die Einheiten richten sich danach, was Sie tatsächlich geschafft haben, und der direkte Draht zum Coach hält den Plan Woche für Woche realistisch.',
+  'p.lingua.long': 'Lingua AI hört beim Sprechen zu, korrigiert die Aussprache im Moment und passt die Schwierigkeit an Ihr Niveau an. Kurze tägliche Einheiten, Offline-Wiederholungskarten und Fortschritt, den man hört.',
+  'p.vault.long': 'SecureVault bewahrt Passwörter, Dokumente und Wiederherstellungscodes Ende-zu-Ende verschlüsselt auf. Nichts verlässt Ihre Geräte unverschlüsselt, alles funktioniert offline, und das Teilen mit Angehörigen oder im Team ist eine bewusste Entscheidung.'
+});
+
+Object.assign(window.I18N.tr, {
+  'modal.about': 'Bu ürün hakkında',
+  'modal.platforms': 'Şu platformlarda',
+  'modal.rating': 'Mağaza puanı',
+  'modal.users': 'Aktif kullanıcı',
+  'modal.close': 'Kapat',
+  'modal.cta': 'Benzer bir şey talep edin',
+  'p.taskflow.long': 'TaskFlow, büyük proje yönetim paketlerinin ağırlığı olmadan küçük bir ekibi aynı sayfada tutar. Panolar, teslim tarihleri, günlük odak listesi ve haftalık özet; çevrimdışı düzenleme ve bağlantı gelince anında eşitleme ile.',
+  'p.medicare.long': 'MediCare bir kliniğin günlük idari işini üstlenir: hastalar randevusunu kendi alır ve erteler, reçete ve notlar tek bir kayıtta kalır, otomatik hatırlatmalar gelmeyen hasta sayısını düşürür. Veri koruma kuralları en baştan gözetilerek geliştirildi.',
+  'p.shopmate.long': 'ShopMate küçük bir işletmeye gerçek bir vitrin ve onunla uyumlu bir stok sistemi verir. Siparişler, stok, tedarikçiler ve fişler tek yerde; barkod okuma ve harekete geçirilebilir raporlarla.',
+  'p.fitpulse.long': 'FitPulse antrenman planını dürüst bir ilerleme takibiyle birleştirir. Seanslar gerçekten tamamladığınıza göre ayarlanır, antrenörünüzle doğrudan yazışma planı hafta hafta gerçekçi tutar.',
+  'p.lingua.long': 'Lingua AI siz konuşurken dinler, telaffuzu anında düzeltir ve zorluğu seviyenize göre ayarlar. Kısa günlük seanslar, çevrimdışı tekrar kartları ve duyabileceğiniz bir ilerleme.',
+  'p.vault.long': 'SecureVault parolaları, belgeleri ve kurtarma kodlarını uçtan uca şifreleyerek saklar. Cihazlarınızdan şifresiz hiçbir şey çıkmaz, her şey çevrimdışı çalışır ve bir yakınınızla ya da ekiple paylaşmak kazara değil, bilinçli bir karardır.'
+});
