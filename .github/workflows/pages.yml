@@ -22,9 +22,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/configure-pages@v5
+        id: pages
+
+      - name: Prerender a page per language
+        # base_url is the real published URL, so canonical, hreflang,
+        # Open Graph and the sitemap all point at the live site.
+        run: node tools/prerender.js "${{ steps.pages.outputs.base_url }}"
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: .
+
       - id: deployment
         uses: actions/deploy-pages@v4

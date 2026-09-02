@@ -28,6 +28,11 @@
 
   var state = { lang: CONFIG.defaultLang, filter: 'all' };
 
+  // Set by tools/prerender.js on the per-language static pages (fa.html …).
+  // Absent on index.html, where the language is switched in place.
+  var PAGE_LANG = document.documentElement.getAttribute('data-page-lang') || null;
+  var PAGE_DIR = location.pathname.replace(/[^/]*$/, '');
+
   /* ---------- i18n ------------------------------------------- */
   function t(key) {
     var dict = I18N[state.lang] || {};
@@ -39,6 +44,7 @@
   function pickInitialLang() {
     var url = new URLSearchParams(location.search).get('lang');
     if (url && LANG_BY_CODE[url]) return url;
+    if (PAGE_LANG && LANG_BY_CODE[PAGE_LANG]) return PAGE_LANG;
     var saved = store.get('mas.lang');
     if (saved && LANG_BY_CODE[saved]) return saved;
     var navs = navigator.languages || [navigator.language || ''];
@@ -76,9 +82,11 @@
     renderProducts();
     updateSeo();
     if (persist !== false) store.set('mas.lang', code);
-    var u = new URL(location.href);
-    u.searchParams.set('lang', code);
-    history.replaceState(null, '', u);
+    if (!PAGE_LANG) {
+      var u = new URL(location.href);
+      u.searchParams.set('lang', code);
+      history.replaceState(null, '', u);
+    }
   }
 
   function buildLangMenu() {
@@ -100,10 +108,17 @@
       e.stopPropagation();
       menu.hidden ? open() : close();
     });
+    function choose(code) {
+      // On a prerendered page each language is its own URL, so navigate
+      // instead of swapping the text in place.
+      if (PAGE_LANG) { store.set('mas.lang', code); location.href = PAGE_DIR + code + '.html'; return; }
+      applyLang(code);
+    }
+
     menu.addEventListener('click', function (e) {
       var li = e.target.closest('[role="option"]');
       if (!li) return;
-      applyLang(li.dataset.code);
+      choose(li.dataset.code);
       close();
     });
     menu.addEventListener('keydown', function (e) {
@@ -111,7 +126,7 @@
       var li = e.target.closest('[role="option"]');
       if (!li) return;
       e.preventDefault();
-      applyLang(li.dataset.code);
+      choose(li.dataset.code);
       close();
       btn.focus();
     });
@@ -141,15 +156,22 @@
 
   function updateSeo() {
     var base = location.origin + location.pathname;
-    var img = base.replace(/[^/]*$/, '') + 'assets/img/og.png';
+    var dir = location.origin + PAGE_DIR;
+    var img = dir + 'assets/img/og.png';
 
-    upsertLink('canonical', base + '?lang=' + state.lang);
-    setMeta('meta[property="og:url"]', base + '?lang=' + state.lang);
+    // Prerendered deployments give each language its own file; otherwise
+    // the single page distinguishes languages with ?lang=.
+    var urlFor = function (code) {
+      return PAGE_LANG ? dir + code + '.html' : base + '?lang=' + code;
+    };
+
+    upsertLink('canonical', urlFor(state.lang));
+    setMeta('meta[property="og:url"]', urlFor(state.lang));
     setMeta('meta[property="og:image"]', img);
     setMeta('meta[name="twitter:image"]', img);
     setMeta('meta[property="og:locale"]', state.lang);
-    LANGS.forEach(function (l) { upsertLink('alternate', base + '?lang=' + l.code, l.code); });
-    upsertLink('alternate', base, 'x-default');
+    LANGS.forEach(function (l) { upsertLink('alternate', urlFor(l.code), l.code); });
+    upsertLink('alternate', PAGE_LANG ? dir : base, 'x-default');
 
     var faq = [];
     for (var i = 1; i <= 6; i++) {

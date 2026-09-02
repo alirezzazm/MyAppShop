@@ -1,5 +1,0 @@
-User-agent: *
-Allow: /
-
-# Replace the host below with your real domain before going live.
-Sitemap: https://YOUR-DOMAIN.example/sitemap.xml
