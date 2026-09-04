@@ -182,11 +182,13 @@ ExecStart=$(command -v node) ${APP_DIR}/server/app.js
 Restart=always
 RestartSec=3
 
-# The service only needs to write its own data and the web root.
+# Publishing swaps the web root directory itself, so the writable
+# path has to be its parent — bind-mounting the directory would make
+# renaming it fail with EBUSY.
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=full
-ReadWritePaths=${APP_DIR} ${WEB_ROOT}
+ReadWritePaths=${APP_DIR} $(dirname "${WEB_ROOT}")
 
 [Install]
 WantedBy=multi-user.target

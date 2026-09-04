@@ -66,9 +66,28 @@ function publish(webRoot) {
 
   const old = webRoot + '.old';
   fs.rmSync(old, { recursive: true, force: true });
-  if (fs.existsSync(webRoot)) fs.renameSync(webRoot, old);
-  fs.renameSync(staging, webRoot);
-  fs.rmSync(old, { recursive: true, force: true });
+
+  try {
+    if (fs.existsSync(webRoot)) fs.renameSync(webRoot, old);
+    fs.renameSync(staging, webRoot);
+    fs.rmSync(old, { recursive: true, force: true });
+  } catch (err) {
+    // The web root can be a mount point (systemd ReadWritePaths does
+    // this), and a mount point cannot be renamed. Swap the contents
+    // instead: still only local renames, so it stays quick.
+    if (err.code !== 'EBUSY' && err.code !== 'EXDEV') throw err;
+    if (fs.existsSync(old) && !fs.existsSync(webRoot)) fs.renameSync(old, webRoot);
+
+    // Staging may sit on a different filesystem from the mount, so
+    // copy rather than rename. The site is small; this is quick.
+    for (const entry of fs.readdirSync(webRoot)) {
+      fs.rmSync(path.join(webRoot, entry), { recursive: true, force: true });
+    }
+    for (const entry of fs.readdirSync(staging)) {
+      fs.cpSync(path.join(staging, entry), path.join(webRoot, entry), { recursive: true });
+    }
+    fs.rmSync(staging, { recursive: true, force: true });
+  }
 }
 
 function rebuild(opts) {
