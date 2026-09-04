@@ -168,10 +168,34 @@ bash /opt/myappshop/deploy/update.sh
 
 ### انتشار خودکار با هر push
 
-اگر می‌خواهید هر بار که کد را push می‌کنید سایت خودش به‌روز شود، در
-**Settings → Secrets and variables → Actions** این مقادیر را اضافه کنید:
-`SSH_HOST`، `SSH_USER`، `SSH_PRIVATE_KEY` و `SITE_URL`.
-از آن به بعد workflow فایل `.github/workflows/deploy-server.yml` کار را انجام می‌دهد.
+با این روش دیگر لازم نیست کسی دستی به سرور وصل شود؛ گیت‌هاب انتشار را انجام می‌دهد.
+
+**۱. روی سرور یک کلید مخصوص انتشار بسازید**
+
+```bash
+ssh-keygen -t ed25519 -f ~/.ssh/github_deploy -N "" -C "github-actions"
+cat ~/.ssh/github_deploy.pub >> ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+cat ~/.ssh/github_deploy      # این خروجی، کلید خصوصی است
+```
+
+**۲. در گیت‌هاب مخزن، بخش Settings → Secrets and variables → Actions، این چهار مقدار را اضافه کنید**
+
+| نام | مقدار |
+| --- | --- |
+| `SSH_HOST` | آی‌پی سرور |
+| `SSH_USER` | `root` |
+| `SSH_PRIVATE_KEY` | تمام خروجی مرحله قبل، از `-----BEGIN` تا `-----END` |
+| `SITE_URL` | آدرس عمومی سایت، مثلاً `http://172.105.193.117` یا دامنه‌تان |
+
+**۳. تمام.** از این به بعد هر push روی شاخه اصلی، سایت را روی سرور به‌روز می‌کند.
+می‌توانید دستی هم از تب Actions اجرایش کنید.
+
+نکته: یک بار باید `deploy/server-setup.sh` روی سرور اجرا شود تا Nginx نصب و تنظیم شود.
+بعد از آن، انتشارهای بعدی همه از طریق همین workflow انجام می‌شود.
+
+برای قطع دسترسی، کافی است secret را از گیت‌هاب حذف کنید یا آن خط را از
+`~/.ssh/authorized_keys` سرور بردارید.
 
 ## انتشار روی GitHub Pages
 

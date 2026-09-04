@@ -14,7 +14,9 @@ name: Deploy to server
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - claude/software-showcase-webapp-57c7br
   workflow_dispatch:
 
 concurrency:
@@ -50,6 +52,14 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_deploy
           chmod 600 ~/.ssh/id_deploy
           ssh-keyscan -p "${SSH_PORT:-22}" -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Make sure the web root exists
+        env:
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          ssh -i ~/.ssh/id_deploy -p "${SSH_PORT:-22}" \
+            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
+            'mkdir -p /var/www/myappshop'
 
       - name: Upload
         env:
