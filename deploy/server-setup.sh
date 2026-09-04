@@ -165,6 +165,32 @@ if [[ -n "$DOMAIN" ]]; then
     || echo "! Certificate request failed — check that $DOMAIN points at this server, then rerun."
 fi
 
+# HTTP/2 lives on the listen line up to nginx 1.24 and in its own
+# directive from 1.25. Rather than parse versions, try the modern form
+# and fall back if nginx rejects it. Only meaningful once TLS exists.
+enable_http2() {
+  local conf=/etc/nginx/sites-available/myappshop
+  grep -q 'listen 443 ssl' "$conf" || return 0
+  grep -qE 'http2' "$conf" && return 0
+
+  cp "$conf" "$conf.bak"
+  sed -i '0,/index index.html;/s//index index.html;\n\n    http2 on;/' "$conf"
+  if nginx -t >/dev/null 2>&1; then
+    rm -f "$conf.bak"
+  else
+    mv "$conf.bak" "$conf"
+    sed -i 's/^\(\s*listen 443 ssl\);/\1 http2;/; s/^\(\s*listen \[::\]:443 ssl\) ipv6only=on;/\1 http2 ipv6only=on;/' "$conf"
+    nginx -t >/dev/null 2>&1 || { echo "! Could not enable HTTP/2; leaving the config as it was."; git checkout -- "$conf" 2>/dev/null || true; return 0; }
+  fi
+  systemctl reload nginx
+  echo "HTTP/2 enabled"
+}
+
+if [[ -n "$DOMAIN" ]]; then
+  say "Enabling HTTP/2"
+  enable_http2
+fi
+
 say "Done"
 echo "Site:      $SITE_URL"
 echo "Files:     $WEB_ROOT"
