@@ -14,7 +14,8 @@ git -C "$APP_DIR" reset --hard "origin/$BRANCH"
 # Reuse the address the site was built with, so URLs stay stable.
 SITE_URL="$(grep -o 'https\?://[^/"]*' "$WEB_ROOT/sitemap.xml" 2>/dev/null | head -1 || true)"
 if [[ -z "$SITE_URL" ]]; then
-  SITE_URL="http://$(curl -fsS --max-time 5 ifconfig.me 2>/dev/null || hostname -I | awk '{print $1}')"
+  SITE_URL="http://$(curl -fsS4 --max-time 5 ifconfig.me 2>/dev/null \
+    || hostname -I | tr ' ' '\n' | grep -E '^[0-9]+(\.[0-9]+){3}$' | grep -v '^127\.' | head -1)"
 fi
 
 ( cd "$APP_DIR" && node tools/prerender.js "$SITE_URL" )

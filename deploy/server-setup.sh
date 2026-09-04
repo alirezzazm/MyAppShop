@@ -20,6 +20,8 @@ REPO=""
 BRANCH="main"
 DOMAIN=""
 EMAIL=""
+NO_FETCH=0
+SITE_URL_OVERRIDE=""
 APP_DIR="/opt/myappshop"
 WEB_ROOT="/var/www/myappshop"
 
@@ -29,11 +31,16 @@ while [[ $# -gt 0 ]]; do
     --branch) BRANCH="$2"; shift 2 ;;
     --domain) DOMAIN="$2"; shift 2 ;;
     --email)  EMAIL="$2"; shift 2 ;;
+    --no-fetch) NO_FETCH=1; shift ;;   # use the files already in $APP_DIR
+    --site-url) SITE_URL_OVERRIDE="$2"; shift 2 ;;
     *) echo "Unknown option: $1" >&2; exit 1 ;;
   esac
 done
 
-[[ -z "$REPO" ]] && { echo "--repo is required" >&2; exit 1; }
+if [[ $NO_FETCH -eq 0 && -z "$REPO" ]]; then
+  echo "--repo is required (or pass --no-fetch to use $APP_DIR as it is)" >&2
+  exit 1
+fi
 [[ $EUID -ne 0 ]] && { echo "Run this as root." >&2; exit 1; }
 
 say() { printf '\n\033[1;36m==> %s\033[0m\n' "$1"; }
@@ -50,6 +57,10 @@ if ! command -v node >/dev/null 2>&1; then
 fi
 echo "node $(node --version)"
 
+if [[ $NO_FETCH -eq 1 ]]; then
+  say "Using the files already in $APP_DIR"
+  [[ -f "$APP_DIR/tools/prerender.js" ]] || { echo "No site found in $APP_DIR" >&2; exit 1; }
+elif true; then
 say "Fetching the site"
 if [[ -d "$APP_DIR/.git" ]]; then
   git -C "$APP_DIR" remote set-url origin "$REPO"
@@ -59,12 +70,25 @@ else
   rm -rf "$APP_DIR"
   git clone --depth 1 --branch "$BRANCH" "$REPO" "$APP_DIR"
 fi
+fi
 
 # The public address decides canonical, hreflang and Open Graph URLs.
-if [[ -n "$DOMAIN" ]]; then
+# Detection prefers IPv4: a bare IPv6 address is not valid in a URL
+# without brackets, and is rarely the address visitors will use.
+detect_ipv4() {
+  curl -fsS4 --max-time 5 ifconfig.me 2>/dev/null \
+    || curl -fsS4 --max-time 5 https://api.ipify.org 2>/dev/null \
+    || hostname -I | tr ' ' '\n' | grep -E '^[0-9]+(\.[0-9]+){3}$' | grep -v '^127\.' | head -1
+}
+
+if [[ -n "$SITE_URL_OVERRIDE" ]]; then
+  SITE_URL="${SITE_URL_OVERRIDE%/}"
+elif [[ -n "$DOMAIN" ]]; then
   SITE_URL="https://$DOMAIN"
 else
-  SITE_URL="http://$(curl -fsS --max-time 5 ifconfig.me 2>/dev/null || hostname -I | awk '{print $1}')"
+  IPV4="$(detect_ipv4 || true)"
+  [[ -z "$IPV4" ]] && { echo "Could not detect a public IPv4 address — pass --site-url http://your.ip" >&2; exit 1; }
+  SITE_URL="http://$IPV4"
 fi
 
 say "Prerendering for $SITE_URL"
