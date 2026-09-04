@@ -1,0 +1,68 @@
+name: Deploy to server
+
+# Publishes the site to your own server over SSH on every push.
+#
+# Add these repository secrets first (Settings -> Secrets and variables -> Actions):
+#   SSH_HOST         server IP or hostname
+#   SSH_USER         normally root, or a deploy user with sudo
+#   SSH_PRIVATE_KEY  contents of the private key whose public half is
+#                    in the server's ~/.ssh/authorized_keys
+#   SITE_URL         public address, e.g. https://myappshop.com
+#                    (used for canonical, hreflang and Open Graph URLs)
+# Optional:
+#   SSH_PORT         defaults to 22
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-server
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Prerender the language and product pages
+        run: node tools/prerender.js "${{ secrets.SITE_URL }}"
+
+      - name: Stage the files to publish
+        run: |
+          mkdir -p dist
+          tar -c --exclude='./.git' --exclude='./.github' --exclude='./tools' \
+                 --exclude='./deploy' --exclude='./README.md' --exclude='./.gitignore' \
+                 --exclude='./dist' . | tar -x -C dist
+          echo "Publishing $(find dist -type f | wc -l) files"
+
+      - name: Add the server to known hosts
+        env:
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          ssh-keyscan -p "${SSH_PORT:-22}" -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Upload
+        env:
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/id_deploy -p ${SSH_PORT:-22}" \
+            dist/ "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/myappshop/"
+
+      - name: Reload Nginx
+        env:
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          ssh -i ~/.ssh/id_deploy -p "${SSH_PORT:-22}" \
+            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
+            'chown -R www-data:www-data /var/www/myappshop && nginx -t && systemctl reload nginx'

@@ -47,7 +47,9 @@ assets/js/product-view.js   سازنده مشترک صفحه جزئیات (مر�
 assets/js/product-page.js   کنترل صفحه جزئیات
 assets/js/app.js            منطق: زبان، پوسته، فیلتر، دیالوگ محصول، فرم، سئو
 tools/prerender.js          ساخت صفحه استاتیک هر زبان + sitemap + robots
-.github/workflows/pages.yml انتشار خودکار روی GitHub Pages
+deploy/server-setup.sh      نصب کامل روی سرور شخصی (Nginx + HTTPS)
+deploy/update.sh            به‌روزرسانی سایت روی سرور
+.github/workflows/          انتشار خودکار روی GitHub Pages یا سرور شخصی
 ```
 
 فایل‌های `fa.html`، `ar.html` و …، صفحات محصول مثل `taskflow.fa.html`، و همچنین `sitemap.xml` و `robots.txt` **تولیدی** هستند و در مخزن نگه‌داری نمی‌شوند؛ هنگام انتشار ساخته می‌شوند.
@@ -133,6 +135,43 @@ node tools/prerender.js https://your-domain.com
 هر صفحه `lang` و `dir` درست، عنوان و توضیح ترجمه‌شده، تگ‌های Open Graph و داده ساختاریافته مخصوص همان زبان را دارد.
 جاوااسکریپت هم می‌داند روی کدام صفحه است و زبان را عوض نمی‌کند؛ تغییر زبان از منو، کاربر را به صفحه همان زبان می‌برد.
 `index.html` مثل قبل کار می‌کند و زبان را در جا عوض می‌کند.
+
+## انتشار روی سرور شخصی (Ubuntu / Debian)
+
+روی خود سرور به‌عنوان root وارد شوید و همین یک دستور را اجرا کنید:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/alirezzazm/MyAppShop/main/deploy/server-setup.sh \
+  -o server-setup.sh && bash server-setup.sh \
+  --repo https://github.com/alirezzazm/MyAppShop.git --branch main
+```
+
+اسکریپت این کارها را انجام می‌دهد:
+
+- نصب Nginx، Git و Node.js
+- گرفتن کد و ساخت هر ۵۶ صفحه استاتیک با آدرس واقعی سرور
+- انتشار در `/var/www/myappshop` و تنظیم Nginx با فشرده‌سازی gzip، کش، هدرهای امنیتی و صفحه ۴۰۴
+- آدرس‌های تمیز: `/fa` به‌جای `/fa.html` و `/taskflow.fa` به‌جای `/taskflow.fa.html`
+- باز کردن پورت‌های ۸۰ و ۴۴۳ در فایروال
+
+اگر دامنه دارید و به این سرور اشاره می‌کند، این دو گزینه را هم اضافه کنید تا گواهی HTTPS رایگان هم گرفته شود:
+
+```bash
+  --domain your-domain.com --email you@your-domain.com
+```
+
+برای به‌روزرسانی بعدی، فقط:
+
+```bash
+bash /opt/myappshop/deploy/update.sh
+```
+
+### انتشار خودکار با هر push
+
+اگر می‌خواهید هر بار که کد را push می‌کنید سایت خودش به‌روز شود، در
+**Settings → Secrets and variables → Actions** این مقادیر را اضافه کنید:
+`SSH_HOST`، `SSH_USER`، `SSH_PRIVATE_KEY` و `SITE_URL`.
+از آن به بعد workflow فایل `.github/workflows/deploy-server.yml` کار را انجام می‌دهد.
 
 ## انتشار روی GitHub Pages
 
