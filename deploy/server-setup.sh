@@ -124,6 +124,17 @@ server {
         try_files \$uri \$uri.html \$uri/ =404;
     }
 
+    # Admin panel and API, served by the Node service on localhost.
+    location ~ ^/(admin|api)(/|\$) {
+        proxy_pass http://127.0.0.1:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_read_timeout 300s;   # a rebuild can take a few seconds
+    }
+
     error_page 404 /404.html;
 
     gzip on;
@@ -150,6 +161,49 @@ rm -f /etc/nginx/sites-enabled/default
 nginx -t
 systemctl enable nginx >/dev/null 2>&1 || true
 systemctl reload nginx || systemctl restart nginx
+
+say "Installing the admin service"
+install -d -m 750 "$APP_DIR/server/data"
+
+cat > /etc/systemd/system/myappshop-admin.service <<UNIT
+[Unit]
+Description=MyAppShop admin backend
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=${APP_DIR}
+Environment=NODE_ENV=production
+Environment=PORT=3001
+Environment=HOST=127.0.0.1
+Environment=SITE_URL=${SITE_URL}
+Environment=WEB_ROOT=${WEB_ROOT}
+ExecStart=$(command -v node) ${APP_DIR}/server/app.js
+Restart=always
+RestartSec=3
+
+# The service only needs to write its own data and the web root.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ReadWritePaths=${APP_DIR} ${WEB_ROOT}
+
+[Install]
+WantedBy=multi-user.target
+UNIT
+
+systemctl daemon-reload
+systemctl enable myappshop-admin >/dev/null 2>&1 || true
+systemctl restart myappshop-admin
+sleep 1
+systemctl is-active --quiet myappshop-admin \
+  && echo "admin service running on 127.0.0.1:3001" \
+  || { echo "! admin service failed to start:"; journalctl -u myappshop-admin -n 15 --no-pager; }
+
+if ! node -e "require('${APP_DIR}/server/auth').isConfigured() || process.exit(1)" 2>/dev/null; then
+  say "Setting the admin password"
+  node "${APP_DIR}/server/set-password.js"
+fi
 
 say "Opening the firewall"
 ufw allow OpenSSH >/dev/null 2>&1 || true
@@ -195,4 +249,5 @@ say "Done"
 echo "Site:      $SITE_URL"
 echo "Files:     $WEB_ROOT"
 echo "Source:    $APP_DIR"
+echo "Admin:     ${SITE_URL}/admin"
 echo "To update: bash $APP_DIR/deploy/update.sh"

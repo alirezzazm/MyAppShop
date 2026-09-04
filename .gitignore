@@ -24,3 +24,7 @@ node_modules/
 /*.tr.html
 /sitemap.xml
 /robots.txt
+
+# Written by the admin panel at runtime
+/assets/js/overrides.js
+/server/data/

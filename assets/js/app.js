@@ -9,8 +9,10 @@
   var CONFIG = {
     // Paste a form endpoint here (Formspree, Getform, Basin, your own API).
     // Leave empty to fall back to opening the visitor's email client.
-    formEndpoint: '',
-    contactEmail: 'hello@myappshop.com',
+    // Set by the admin panel's build step; empty means fall back to
+    // opening the visitor's email client.
+    formEndpoint: (typeof window !== 'undefined' && window.SITE && window.SITE.formEndpoint) || '',
+    contactEmail: (typeof window !== 'undefined' && window.SITE && window.SITE.email) || 'hello@myappshop.com',
     defaultLang: 'en'
   };
 
@@ -140,6 +142,49 @@
       if (!menu.hidden && !menu.contains(e.target) && e.target !== btn) close();
     });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+  }
+
+  /* ---------- editable site values ---------------------------- */
+  // Filled from window.SITE (assets/js/overrides.js, written by the
+  // admin panel). The prerenderer applies exactly the same values, so
+  // these elements are already correct before any script runs.
+  function applySiteValues() {
+    var site = root.SITE;
+    if (!site) return;
+
+    $$('[data-site]').forEach(function (el) {
+      var key = el.getAttribute('data-site');
+      var value = site[key];
+      if (value == null) return;
+      var attr = el.getAttribute('data-site-attr');
+      if (attr === 'href') {
+        el.setAttribute('href', key === 'email' ? 'mailto:' + value
+          : key === 'phone' ? 'tel:' + String(value).replace(/[^\d+]/g, '')
+          : value);
+        var bdi = el.querySelector('bdi');
+        if (bdi) bdi.textContent = value; else el.textContent = value;
+      } else {
+        el.textContent = value;
+      }
+    });
+
+    if (site.social) {
+      $$('[data-social]').forEach(function (a) {
+        var url = site.social[a.getAttribute('data-social')];
+        if (url) a.href = url;
+        a.hidden = !url || url === '#';
+      });
+    }
+
+    if (site.stats) {
+      $$('[data-stat]').forEach(function (dt) {
+        var stat = site.stats[parseInt(dt.getAttribute('data-stat'), 10)];
+        if (!stat) return;
+        dt.setAttribute('data-count', stat.count);
+        dt.setAttribute('data-suffix', stat.suffix || '');
+        dt.setAttribute('data-decimals', stat.decimals || 0);
+      });
+    }
   }
 
   /* ---------- SEO: canonical, hreflang, structured data -------- */
@@ -277,26 +322,7 @@
       return state.filter === 'all' || p.cats.indexOf(state.filter) !== -1;
     });
 
-    grid.innerHTML = list.map(function (p, i) {
-      return '' +
-        '<article class="product reveal is-in" style="--accent:' + p.accent + '; --i:' + i + '">' +
-          '<div class="product-top">' +
-            '<span class="product-ico">' + p.icon + '</span>' +
-            '<span class="product-tag">' + t('p.' + p.id + '.tag') + '</span>' +
-          '</div>' +
-          '<h3>' + t('p.' + p.id + '.name') + '</h3>' +
-          '<p>' + t('p.' + p.id + '.desc') + '</p>' +
-          '<ul class="platforms">' + p.platforms.map(function (pl) {
-            return '<li>' + pl + '</li>';
-          }).join('') + '</ul>' +
-          '<div class="product-foot">' +
-            '<span class="rating">★ ' + p.rating + '<i>· ' + p.users + '</i></span>' +
-            '<a class="product-link" href="' + productHref(p) + '">' + t('products.view') +
-              '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h13M13 6l6 6-6 6"/></svg>' +
-            '</a>' +
-          '</div>' +
-        '</article>';
-    }).join('');
+    grid.innerHTML = root.buildProductGrid(list, t, productHref);
 
     var note = $('#empty-note');
     if (note) note.hidden = list.length > 0;
@@ -322,9 +348,7 @@
   function initMarquee() {
     var track = $('#marquee-track');
     if (!track) return;
-    var names = window.TRUST_LOGOS || [];
-    var row = names.map(function (n) { return '<span class="logo-pill">' + n + '</span>'; }).join('');
-    track.innerHTML = row + row; // duplicated for a seamless loop
+    track.innerHTML = root.buildMarquee(root.TRUST_LOGOS || []);
   }
 
   /* ---------- reveal on scroll -------------------------------- */
@@ -554,6 +578,7 @@
   function init() {
     var y = $('#year');
     if (y) y.textContent = new Date().getFullYear();
+    applySiteValues();
     initTheme();
     buildLangMenu();
     initMarquee();

@@ -27,13 +27,23 @@ const siteUrl = String(process.argv[2] || process.env.SITE_URL || PLACEHOLDER).r
 
 /* ---------- load the dictionaries and product data ------------ */
 const sandbox = { window: {} };
-for (const file of ['i18n-data.js', 'products.js', 'product-view.js']) {
-  const code = fs.readFileSync(path.join(ROOT, 'assets/js', file), 'utf8');
-  new Function('window', code)(sandbox.window);
+for (const file of ['i18n-data.js', 'products.js', 'overrides.js', 'product-view.js', 'product-card.js']) {
+  const full = path.join(ROOT, 'assets/js', file);
+  // overrides.js only exists once the admin panel has generated it.
+  if (!fs.existsSync(full)) continue;
+  new Function('window', fs.readFileSync(full, 'utf8'))(sandbox.window);
 }
 const { LANGS, I18N, PRODUCTS } = sandbox.window;
+const SITE = sandbox.window.SITE || {};
+const TRUST_LOGOS = sandbox.window.TRUST_LOGOS || [];
 
-const { buildProductView } = sandbox.window;
+/* A card links to that product's page in the language being rendered,
+   unless the product points somewhere else (an app store, say). */
+function productHref(p, lang) {
+  return p.link && p.link !== '#contact' ? p.link : `${p.id}.${lang}.html`;
+}
+
+const { buildProductView, buildProductGrid, buildMarquee } = sandbox.window;
 
 const template = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 const productTemplate = fs.readFileSync(path.join(ROOT, 'product.html'), 'utf8');
@@ -47,6 +57,50 @@ function translator(lang) {
   const dict = I18N[lang] || {};
   const en = I18N.en || {};
   return (key) => (key in dict ? dict[key] : key in en ? en[key] : key);
+}
+
+/* ---------- editable site values ------------------------------ */
+function applySite(html) {
+  if (!SITE || !Object.keys(SITE).length) return html;
+
+  html = html.replace(/<a\b([^>]*\bdata-site=(["'])(.*?)\2[^>]*)>([\s\S]*?)<\/a>/g,
+    (whole, attrs, _q, key, inner) => {
+      const value = SITE[key];
+      if (value == null) return whole;
+      let next = attrs;
+      if (/\bdata-site-attr=(["'])href\1/.test(attrs)) {
+        const href = key === 'email' ? 'mailto:' + value
+          : key === 'phone' ? 'tel:' + String(value).replace(/[^\d+]/g, '')
+          : String(value);
+        next = attrs.replace(/\bhref=(["'])(.*?)\1/, `href="${escapeHtml(href)}"`);
+      }
+      const body = inner.includes('<bdi')
+        ? inner.replace(/(<bdi[^>]*>)[^<]*(<\/bdi>)/, `$1${escapeHtml(value)}$2`)
+        : escapeHtml(value);
+      return `<a${next}>${body}</a>`;
+    });
+
+  if (SITE.social) {
+    html = html.replace(/<a\b([^>]*\bdata-social=(["'])(.*?)\2[^>]*)>/g, (whole, attrs, _q, name) => {
+      const url = SITE.social[name];
+      if (!url || url === '#') return `<a${attrs} hidden>`;
+      return `<a${attrs.replace(/\bhref=(["'])(.*?)\1/, `href="${escapeHtml(url)}"`)}>`;
+    });
+  }
+
+  if (Array.isArray(SITE.stats)) {
+    html = html.replace(/<dt\b([^>]*\bdata-stat=(["'])(\d+)\2[^>]*)>/g, (whole, attrs, _q, index) => {
+      const stat = SITE.stats[Number(index)];
+      if (!stat) return whole;
+      const next = attrs
+        .replace(/\bdata-count=(["'])(.*?)\1/, `data-count="${escapeHtml(stat.count)}"`)
+        .replace(/\bdata-suffix=(["'])(.*?)\1/, `data-suffix="${escapeHtml(stat.suffix || '')}"`)
+        .replace(/\bdata-decimals=(["'])(.*?)\1/, `data-decimals="${escapeHtml(stat.decimals || 0)}"`);
+      return `<dt${next}>`;
+    });
+  }
+
+  return html;
 }
 
 /* ---------- structured data ----------------------------------- */
@@ -130,6 +184,18 @@ function render(meta) {
   html = html.replace(/ data-prerender="(.*?)">([^<]*)</g,
     (_m, key, _text) => `>${escapeHtml(t(key.replace(/&#39;/g, "'").replace(/&amp;/g, '&')))}<`);
 
+  // Values the admin can edit (contact details, social links, stats).
+  html = applySite(html);
+
+  // Bake the product grid and client strip; without this the landing
+  // page ships an empty grid to anything that does not run scripts.
+  html = html.replace('<div class="product-grid" id="product-grid"></div>',
+    '<div class="product-grid" id="product-grid">' +
+      buildProductGrid(PRODUCTS, t, (p) => productHref(p, lang)) +
+    '</div>');
+  html = html.replace('<div class="marquee-track" id="marquee-track"></div>',
+    '<div class="marquee-track" id="marquee-track">' + buildMarquee(TRUST_LOGOS) + '</div>');
+
   // Document language and direction.
   html = html.replace(/<html lang="[^"]*" dir="[^"]*">/,
     `<html lang="${lang}" dir="${meta.dir}" data-page-lang="${lang}">`);
@@ -169,7 +235,7 @@ function renderProduct(product, meta) {
     contactUrl: () => `${lang}.html#contact`
   });
 
-  let html = productTemplate;
+  let html = applySite(productTemplate);
 
   html = html.replace('<html lang="en" dir="ltr">',
     `<html lang="${lang}" dir="${meta.dir}" data-page-lang="${lang}" data-product-id="${product.id}" data-lang-template="${product.id}.{lang}.html">`);
