@@ -8,7 +8,34 @@
   'use strict';
 
   var root = document.getElementById('root');
-  var state = { tab: 'products', data: null, lang: 'fa', requests: [], busy: false, editing: null };
+  var state = { tab: 'products', data: null, lang: 'fa', requests: [], busy: false, editing: null, ui: 'fa' };
+
+  try {
+    var savedUi = localStorage.getItem('mas.admin.lang');
+    if (savedUi && window.ADMIN_T[savedUi]) state.ui = savedUi;
+    else if ((navigator.language || '').slice(0, 2) !== 'fa') state.ui = 'en';
+  } catch (e) {}
+
+  /* Panel wording. Falls back to English for anything untranslated. */
+  function T(key, vars) {
+    var dict = window.ADMIN_T[state.ui] || {};
+    var text = key in dict ? dict[key] : (window.ADMIN_T.en[key] || key);
+    if (vars) Object.keys(vars).forEach(function (k) { text = text.replace('{' + k + '}', vars[k]); });
+    return text;
+  }
+
+  function setUiLang(code) {
+    var first = !state.data;
+    state.ui = code;
+    // Before anything is loaded there is no content language yet, so
+    // start on the one matching the panel. After that it is the
+    // editor's own selector that decides.
+    if (first) state.lang = code;
+    try { localStorage.setItem('mas.admin.lang', code); } catch (e) {}
+    var meta = window.ADMIN_LANGS.filter(function (l) { return l.code === code; })[0];
+    document.documentElement.lang = code;
+    document.documentElement.dir = meta ? meta.dir : 'rtl';
+  }
 
   /* ---------- tiny DOM helper -------------------------------- */
   function h(tag, attrs, children) {
@@ -57,15 +84,15 @@
   /* Every save rebuilds the static site, so report both halves. */
   function save(promise) {
     state.busy = true;
-    status('busy', 'در حال ذخیره و بازسازی سایت…');
+    status('busy', T('status.saving'));
     return promise.then(function (res) {
       state.busy = false;
-      if (res && res.ok === true && res.error) status('err', 'ذخیره شد، اما بازسازی سایت شکست خورد: ' + res.error);
-      else status('ok', 'ذخیره شد و سایت بازسازی شد ✓');
+      if (res && res.error) status('err', T('status.savedNoBuild') + res.error);
+      else status('ok', T('status.saved'));
       return res;
     }).catch(function (e) {
       state.busy = false;
-      status('err', 'خطا: ' + e.message);
+      status('err', T('status.error') + e.message);
       throw e;
     });
   }
@@ -74,37 +101,43 @@
   function renderLogin(message) {
     clear(root);
     var pass = h('input', { type: 'password', id: 'p', autocomplete: 'current-password', required: 'required' });
-    var msg = h('p', { class: message ? 'status err' : 'hint', text: message || 'برای ورود رمز مدیریت را وارد کنید.' });
+    var msg = h('p', { class: message ? 'status err' : 'hint', text: message || T('login.hint') });
     var form = h('form', {
       onsubmit: function (e) {
         e.preventDefault();
         api('POST', '/api/login', { password: pass.value })
           .then(boot)
           .catch(function (err) {
-            renderLogin(err.message === 'too_many_attempts'
-              ? 'تلاش‌های ناموفق زیاد. ۱۵ دقیقه دیگر دوباره امتحان کنید.'
-              : err.message === 'not_configured'
-                ? 'هنوز رمزی تنظیم نشده. روی سرور اجرا کنید: node server/set-password.js'
-                : 'رمز اشتباه است.');
+            renderLogin(err.message === 'too_many_attempts' ? T('login.throttled')
+              : err.message === 'not_configured' ? T('login.notConfigured')
+              : T('login.wrong'));
           });
       }
     }, [
-      h('h1', { text: 'پنل مدیریت' }), msg,
-      h('label', { class: 'field' }, [h('span', { text: 'رمز عبور' }), pass]),
-      h('button', { class: 'btn primary', type: 'submit', style: 'width:100%', text: 'ورود' })
+      h('h1', { text: T('login.title') }), msg,
+      h('label', { class: 'field' }, [h('span', { text: T('login.password') }), pass]),
+      h('button', { class: 'btn primary', type: 'submit', style: 'width:100%', text: T('login.submit') }),
+      uiLangToggle()
     ]);
     root.appendChild(h('div', { class: 'login' }, form));
     pass.focus();
   }
 
   /* ---------- shell ------------------------------------------ */
-  var TABS = [
-    { id: 'products', label: 'محصولات' },
-    { id: 'texts', label: 'متن‌ها' },
-    { id: 'settings', label: 'تنظیمات سایت' },
-    { id: 'requests', label: 'درخواست‌ها' },
-    { id: 'account', label: 'حساب' }
-  ];
+  var TABS = ['products', 'texts', 'settings', 'requests', 'account'];
+
+  /* Switches the panel's own language — not the site's content. */
+  function uiLangToggle() {
+    return h('div', { class: 'ui-lang' }, window.ADMIN_LANGS.map(function (l) {
+      return h('button', {
+        class: state.ui === l.code ? 'on' : '', type: 'button', text: l.label,
+        onclick: function () {
+          setUiLang(l.code);
+          if (state.data) renderShell(); else renderLogin();
+        }
+      });
+    }));
+  }
 
   function renderShell() {
     clear(root);
@@ -112,16 +145,17 @@
 
     var side = h('nav', { class: 'side' }, [
       h('div', { class: 'brand' }, [h('span', { text: 'M' }), h('b', { text: 'MyAppShop' })])
-    ].concat(TABS.map(function (t) {
+    ].concat(TABS.map(function (id) {
       return h('button', {
-        class: 'tab' + (state.tab === t.id ? ' on' : ''),
-        onclick: function () { state.tab = t.id; state.editing = null; renderShell(); }
-      }, [h('span', { text: t.label }),
-          t.id === 'requests' && unread ? h('span', { class: 'badge-count', text: String(unread) }) : null]);
+        class: 'tab' + (state.tab === id ? ' on' : ''),
+        onclick: function () { state.tab = id; state.editing = null; renderShell(); }
+      }, [h('span', { text: T('tab.' + id) }),
+          id === 'requests' && unread ? h('span', { class: 'badge-count', text: String(unread) }) : null]);
     })).concat([
       h('div', { class: 'spacer' }),
+      uiLangToggle(),
       h('div', { class: 'meta' }, [
-        h('div', {}, [h('a', { href: state.data.siteUrl, target: '_blank', text: 'مشاهده سایت ↗' })]),
+        h('div', {}, [h('a', { href: state.data.siteUrl, target: '_blank', text: T('nav.viewSite') })]),
         h('div', { text: state.data.siteUrl.replace(/^https?:\/\//, '') })
       ])
     ]));
@@ -139,17 +173,20 @@
   }
 
   /* ---------- products --------------------------------------- */
-  var CATS = [['mobile', 'موبایل'], ['web', 'وب'], ['desktop', 'دسکتاپ'], ['ai', 'هوش مصنوعی']];
-  var PTEXTS = [['name', 'نام'], ['tag', 'دسته‌بندی'], ['desc', 'توضیح کوتاه'], ['long', 'معرفی کامل'],
-                ['h1', 'نقطه قوت ۱'], ['h2', 'نقطه قوت ۲'], ['h3', 'نقطه قوت ۳']];
+  var CATS = ['mobile', 'web', 'desktop', 'ai'];
+  var PTEXTS = ['name', 'tag', 'desc', 'long', 'h1', 'h2', 'h3'];
 
   function textKey(id, field) { return field.charAt(0) === 'h' ? 'pd.' + id + '.' + field : 'p.' + id + '.' + field; }
 
   function renderProducts(main) {
     if (state.editing) return renderProductEditor(main);
 
-    main.appendChild(h('h2', { class: 'page', text: 'محصولات' }));
-    main.appendChild(h('p', { class: 'hint', text: 'هر محصول یک صفحه کامل در هر هشت زبان دارد. با تغییر اینجا، صفحات دوباره ساخته می‌شوند.' }));
+    main.appendChild(h('h2', { class: 'page', text: T('products.title') }));
+    main.appendChild(h('p', { class: 'hint', text: T('products.hint') }));
+    main.appendChild(h('div', { class: 'lang-bar' }, state.data.langs.map(function (l) {
+      return h('button', { class: state.lang === l.code ? 'on' : '', text: l.native,
+        onclick: function () { state.lang = l.code; renderShell(); } });
+    })));
 
     var list = h('div', { class: 'list' }, state.data.products.map(function (p, i) {
       return h('div', { class: 'item' }, [
@@ -160,14 +197,14 @@
         ]),
         h('button', { class: 'btn small', text: '↑', disabled: i === 0, onclick: function () { move(i, -1); } }),
         h('button', { class: 'btn small', text: '↓', disabled: i === state.data.products.length - 1, onclick: function () { move(i, 1); } }),
-        h('button', { class: 'btn small', text: 'ویرایش', onclick: function () { state.editing = JSON.parse(JSON.stringify(p)); renderShell(); } }),
-        h('button', { class: 'btn small danger', text: 'حذف', onclick: function () { removeProduct(p.id); } })
+        h('button', { class: 'btn small', text: T('products.edit'), onclick: function () { state.editing = JSON.parse(JSON.stringify(p)); renderShell(); } }),
+        h('button', { class: 'btn small danger', text: T('products.delete'), onclick: function () { removeProduct(p.id); } })
       ]);
     }));
 
     main.appendChild(list);
     main.appendChild(bar([
-      h('button', { class: 'btn primary', text: '+ محصول جدید', onclick: function () {
+      h('button', { class: 'btn primary', text: T('products.new'), onclick: function () {
         state.editing = { id: '', cats: ['mobile'], accent: '#7c6cf6', platforms: ['iOS', 'Android'],
                           rating: '4.8', users: '10K', link: '#contact',
                           icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M8 9h8M8 13h8"/></svg>',
@@ -188,7 +225,7 @@
   }
 
   function removeProduct(id) {
-    if (!confirm('محصول «' + id + '» حذف شود؟ صفحه‌های آن در همه زبان‌ها هم حذف می‌شوند.')) return;
+    if (!confirm(T('products.confirmDelete', { id: id }))) return;
     var arr = state.data.products.filter(function (p) { return p.id !== id; });
     state.data.products = arr;
     renderShell();
@@ -211,36 +248,36 @@
       return h('label', { class: 'field' }, [h('span', { text: label }), input]);
     }
 
-    main.appendChild(h('h2', { class: 'page', text: p._new ? 'محصول جدید' : 'ویرایش محصول' }));
-    main.appendChild(h('p', { class: 'hint', text: 'متن‌ها را برای هر زبان جداگانه وارد کنید. زبانی که پر نشود، از انگلیسی پر می‌شود.' }));
+    main.appendChild(h('h2', { class: 'page', text: p._new ? T('editor.new') : T('editor.edit') }));
+    main.appendChild(h('p', { class: 'hint', text: T('editor.hint') }));
 
     var idInput = h('input', { type: 'text', value: p.id, disabled: !p._new, dir: 'ltr',
-                               placeholder: 'مثلاً taskflow — فقط حروف کوچک انگلیسی و خط تیره' });
+                               placeholder: T('editor.idPlaceholder') });
     inputs.id = idInput;
 
     var catBoxes = CATS.map(function (c) {
-      var cb = h('input', { type: 'checkbox', checked: p.cats.indexOf(c[0]) !== -1 });
-      inputs['cat_' + c[0]] = cb;
-      return h('label', { style: 'display:inline-flex;gap:6px;align-items:center;margin-inline-end:16px' }, [cb, h('span', { text: c[1] })]);
+      var cb = h('input', { type: 'checkbox', checked: p.cats.indexOf(c) !== -1 });
+      inputs['cat_' + c] = cb;
+      return h('label', { style: 'display:inline-flex;gap:6px;align-items:center;margin-inline-end:16px' }, [cb, h('span', { text: T('cat.' + c) })]);
     });
 
     var accent = h('input', { type: 'color', value: p.accent });
     inputs.accent = accent;
 
     main.appendChild(h('div', { class: 'card' }, [
-      h('h3', { text: 'مشخصات' }),
-      h('label', { class: 'field' }, [h('span', { text: 'شناسه (در آدرس صفحه استفاده می‌شود)' }), idInput]),
+      h('h3', { text: T('editor.specs') }),
+      h('label', { class: 'field' }, [h('span', { text: T('editor.id') }), idInput]),
       h('div', { class: 'row' }, [
-        field('platforms', 'پلتفرم‌ها (با کاما جدا کنید)', p.platforms.join(', ')),
-        field('link', 'لینک دکمه کارت (خالی یا #contact یعنی صفحه جزئیات)', p.link)
+        field('platforms', T('editor.platforms'), p.platforms.join(', ')),
+        field('link', T('editor.link'), p.link)
       ]),
       h('div', { class: 'row-3' }, [
-        field('rating', 'امتیاز', p.rating),
-        field('users', 'تعداد کاربر', p.users),
-        h('label', { class: 'field' }, [h('span', { text: 'رنگ' }), accent])
+        field('rating', T('editor.rating'), p.rating),
+        field('users', T('editor.users'), p.users),
+        h('label', { class: 'field' }, [h('span', { text: T('editor.color') }), accent])
       ]),
-      h('label', { class: 'field' }, [h('span', { text: 'دسته‌بندی‌ها (برای فیلتر)' }), h('div', {}, catBoxes)]),
-      field('icon', 'آیکون (کد SVG)', p.icon, 'textarea')
+      h('label', { class: 'field' }, [h('span', { text: T('editor.cats') }), h('div', {}, catBoxes)]),
+      field('icon', T('editor.icon'), p.icon, 'textarea')
     ]));
 
     var langBar = h('div', { class: 'lang-bar' }, state.data.langs.map(function (l) {
@@ -248,13 +285,13 @@
         onclick: function () { collectTexts(p, inputs); state.lang = l.code; renderShell(); } });
     }));
 
-    var textCard = h('div', { class: 'card' }, [h('h3', { text: 'متن‌ها — ' + langName(state.lang) })].concat(
-      PTEXTS.map(function (t) {
-        var key = textKey(p.id || '__new', t[0]);
-        var current = (p._texts && p._texts[state.lang] && p._texts[state.lang][t[0]] != null)
-          ? p._texts[state.lang][t[0]]
+    var textCard = h('div', { class: 'card' }, [h('h3', { text: T('editor.texts') + langName(state.lang) })].concat(
+      PTEXTS.map(function (f) {
+        var key = textKey(p.id || '__new', f);
+        var current = (p._texts && p._texts[state.lang] && p._texts[state.lang][f] != null)
+          ? p._texts[state.lang][f]
           : (state.data.i18n[state.lang][key] || '');
-        return field('t_' + t[0], t[1], current, t[0] === 'long' ? 'textarea' : 'text');
+        return field('t_' + f, T('pt.' + f), current, f === 'long' ? 'textarea' : 'text');
       })
     ));
 
@@ -262,8 +299,8 @@
     main.appendChild(textCard);
 
     main.appendChild(bar([
-      h('button', { class: 'btn primary', text: 'ذخیره', onclick: function () { saveProduct(p, inputs); } }),
-      h('button', { class: 'btn', text: 'انصراف', onclick: function () { state.editing = null; renderShell(); } })
+      h('button', { class: 'btn primary', text: T('editor.save'), onclick: function () { saveProduct(p, inputs); } }),
+      h('button', { class: 'btn', text: T('editor.cancel'), onclick: function () { state.editing = null; renderShell(); } })
     ]));
   }
 
@@ -275,19 +312,19 @@
   function collectTexts(p, inputs) {
     p._texts = p._texts || {};
     p._texts[state.lang] = {};
-    PTEXTS.forEach(function (t) {
-      if (inputs['t_' + t[0]]) p._texts[state.lang][t[0]] = inputs['t_' + t[0]].value;
+    PTEXTS.forEach(function (f) {
+      if (inputs['t_' + f]) p._texts[state.lang][f] = inputs['t_' + f].value;
     });
   }
 
   function saveProduct(p, inputs) {
     collectTexts(p, inputs);
     var id = (inputs.id.value || p.id).trim().toLowerCase();
-    if (!/^[a-z0-9-]+$/.test(id)) { status('err', 'شناسه فقط می‌تواند حروف کوچک انگلیسی، عدد و خط تیره باشد.'); return; }
+    if (!/^[a-z0-9-]+$/.test(id)) { status('err', T('editor.idInvalid')); return; }
 
     var next = {
       id: id,
-      cats: CATS.filter(function (c) { return inputs['cat_' + c[0]].checked; }).map(function (c) { return c[0]; }),
+      cats: CATS.filter(function (c) { return inputs['cat_' + c].checked; }),
       accent: inputs.accent.value,
       platforms: inputs.platforms.value.split(',').map(function (s) { return s.trim(); }).filter(Boolean),
       rating: inputs.rating.value.trim(),
@@ -305,9 +342,9 @@
     var i18n = {};
     Object.keys(p._texts || {}).forEach(function (lang) {
       i18n[lang] = {};
-      PTEXTS.forEach(function (t) {
-        var v = p._texts[lang][t[0]];
-        if (v != null && v !== '') i18n[lang][textKey(id, t[0])] = v;
+      PTEXTS.forEach(function (f) {
+        var v = p._texts[lang][f];
+        if (v != null && v !== '') i18n[lang][textKey(id, f)] = v;
       });
       if (!Object.keys(i18n[lang]).length) delete i18n[lang];
     });
@@ -316,22 +353,17 @@
       return api('GET', '/api/content');
     }).then(function (data) {
       state.data = data; state.editing = null; renderShell();
-      status('ok', 'ذخیره شد و سایت بازسازی شد ✓');
+      status('ok', T('status.saved'));
     });
   }
 
   /* ---------- texts ------------------------------------------ */
-  var GROUPS = [
-    ['nav.', 'منو'], ['hero.', 'بخش اول صفحه'], ['trust.', 'نوار مشتریان'],
-    ['products.', 'بخش محصولات'], ['features.', 'مزایا'], ['process.', 'روند کار'],
-    ['reviews.', 'نظرات مشتریان'], ['contact.', 'بخش تماس'], ['form.', 'فرم درخواست'],
-    ['faq.', 'پرسش‌های متداول'], ['cta.', 'بنر پایانی'], ['footer.', 'فوتر'],
-    ['pd.', 'صفحه محصول'], ['modal.', 'برچسب‌های محصول'], ['p.', 'متن محصولات'], ['meta.', 'عنوان و توضیح سایت']
-  ];
+  var GROUPS = ['nav', 'hero', 'trust', 'products', 'features', 'process', 'reviews',
+                'contact', 'form', 'faq', 'cta', 'footer', 'pd', 'modal', 'p', 'meta'];
 
   function renderTexts(main) {
-    main.appendChild(h('h2', { class: 'page', text: 'متن‌ها' }));
-    main.appendChild(h('p', { class: 'hint', text: 'هر متنی که در سایت دیده می‌شود اینجا قابل تغییر است. فیلد خالی یعنی همان متن پیش‌فرض استفاده می‌شود.' }));
+    main.appendChild(h('h2', { class: 'page', text: T('texts.title') }));
+    main.appendChild(h('p', { class: 'hint', text: T('texts.hint') }));
 
     main.appendChild(h('div', { class: 'lang-bar' }, state.data.langs.map(function (l) {
       var changed = countChanged(l.code);
@@ -340,7 +372,7 @@
         [h('span', { text: l.native }), changed ? h('span', { class: 'n', text: '●' }) : null]);
     })));
 
-    var search = h('input', { type: 'text', placeholder: 'جستجو در متن‌ها…' });
+    var search = h('input', { type: 'text', placeholder: T('texts.search') });
     main.appendChild(h('div', { class: 'card' }, [search]));
 
     var dict = state.data.i18n[state.lang];
@@ -352,8 +384,9 @@
       clear(container);
       var used = {};
       GROUPS.forEach(function (g) {
+        var prefix = g + '.';
         var keys = Object.keys(dict).filter(function (k) {
-          if (used[k] || k.indexOf(g[0]) !== 0) return false;
+          if (used[k] || k.indexOf(prefix) !== 0) return false;
           if (filter && (k + ' ' + dict[k]).toLowerCase().indexOf(filter) === -1) return false;
           return true;
         });
@@ -366,12 +399,12 @@
           inputs[k] = input;
           var changed = defaults[k] !== undefined && defaults[k] !== dict[k];
           return h('label', { class: 'field' }, [
-            h('span', { class: 'tkey' + (changed ? ' changed' : ''), text: k + (changed ? '  (تغییر داده شده)' : '') }),
+            h('span', { class: 'tkey' + (changed ? ' changed' : ''), text: k + (changed ? T('texts.changed') : '') }),
             input
           ]);
         }));
         container.appendChild(h('details', { class: 'group', open: !!filter }, [
-          h('summary', { text: g[1] + '  (' + keys.length + ')' }), body
+          h('summary', { text: T('g.' + g) + '  (' + keys.length + ')' }), body
         ]));
       });
     }
@@ -381,7 +414,7 @@
     main.appendChild(container);
 
     main.appendChild(bar([
-      h('button', { class: 'btn primary', text: 'ذخیره متن‌های ' + langName(state.lang), onclick: function () {
+      h('button', { class: 'btn primary', text: T('texts.save') + langName(state.lang), onclick: function () {
         var entries = {};
         Object.keys(inputs).forEach(function (k) { entries[k] = inputs[k].value; });
         save(api('PUT', '/api/texts', { lang: state.lang, entries: entries })).then(function () {
@@ -407,18 +440,18 @@
       return h('label', { class: 'field' }, [h('span', { text: label }), input]);
     }
 
-    main.appendChild(h('h2', { class: 'page', text: 'تنظیمات سایت' }));
-    main.appendChild(h('p', { class: 'hint', text: 'اطلاعات تماس، شبکه‌های اجتماعی، آمار بالای صفحه و نام مشتریان.' }));
+    main.appendChild(h('h2', { class: 'page', text: T('settings.title') }));
+    main.appendChild(h('p', { class: 'hint', text: T('settings.hint') }));
 
     main.appendChild(h('div', { class: 'card' }, [
-      h('h3', { text: 'اطلاعات تماس' }),
-      h('div', { class: 'row' }, [f('email', 'ایمیل', s.email), f('phone', 'تلفن', s.phone)])
+      h('h3', { text: T('settings.contact') }),
+      h('div', { class: 'row' }, [f('email', T('settings.email'), s.email), f('phone', T('settings.phone'), s.phone)])
     ]));
 
     main.appendChild(h('div', { class: 'card' }, [
-      h('h3', { text: 'شبکه‌های اجتماعی (خالی بگذارید تا آیکون مخفی شود)' }),
+      h('h3', { text: T('settings.social') }),
       h('div', { class: 'row' }, [
-        f('s_x', 'X (توییتر)', s.social.x === '#' ? '' : s.social.x, 'url'),
+        f('s_x', 'X', s.social.x === '#' ? '' : s.social.x, 'url'),
         f('s_linkedin', 'LinkedIn', s.social.linkedin === '#' ? '' : s.social.linkedin, 'url')
       ]),
       h('div', { class: 'row' }, [
@@ -429,24 +462,24 @@
 
     var stats = s.stats.map(function (st, n) {
       return h('div', { class: 'row-3' }, [
-        f('st' + n + '_count', 'عدد ' + (n + 1), st.count),
-        f('st' + n + '_suffix', 'پسوند ' + (n + 1), st.suffix),
-        f('st' + n + '_decimals', 'رقم اعشار ' + (n + 1), st.decimals || 0)
+        f('st' + n + '_count', T('settings.num') + (n + 1), st.count),
+        f('st' + n + '_suffix', T('settings.suffix') + (n + 1), st.suffix),
+        f('st' + n + '_decimals', T('settings.decimals') + (n + 1), st.decimals || 0)
       ]);
     });
     main.appendChild(h('div', { class: 'card' }, [
-      h('h3', { text: 'آمار بالای صفحه' }),
-      h('p', { class: 'hint', text: 'برچسب هر عدد را در تب متن‌ها (hero.stat1 تا hero.stat3) تغییر دهید.' })
+      h('h3', { text: T('settings.stats') }),
+      h('p', { class: 'hint', text: T('settings.statsHint') })
     ].concat(stats)));
 
     var logos = h('textarea', { value: state.data.trustLogos.join('\n'), style: 'min-height:120px' });
     main.appendChild(h('div', { class: 'card' }, [
-      h('h3', { text: 'نام مشتریان (نوار متحرک)' }),
-      h('p', { class: 'hint', text: 'هر نام در یک خط.' }), logos
+      h('h3', { text: T('settings.logos') }),
+      h('p', { class: 'hint', text: T('settings.logosHint') }), logos
     ]));
 
     main.appendChild(bar([
-      h('button', { class: 'btn primary', text: 'ذخیره تنظیمات', onclick: function () {
+      h('button', { class: 'btn primary', text: T('settings.save'), onclick: function () {
         var payload = {
           email: i.email.value.trim(), phone: i.phone.value.trim(),
           social: { x: i.s_x.value.trim() || '#', linkedin: i.s_linkedin.value.trim() || '#',
@@ -467,11 +500,11 @@
 
   /* ---------- requests --------------------------------------- */
   function renderRequests(main) {
-    main.appendChild(h('h2', { class: 'page', text: 'درخواست‌ها' }));
-    main.appendChild(h('p', { class: 'hint', text: 'هر فرمی که از سایت پر شود اینجا می‌آید.' }));
+    main.appendChild(h('h2', { class: 'page', text: T('requests.title') }));
+    main.appendChild(h('p', { class: 'hint', text: T('requests.hint') }));
 
     if (!state.requests.length) {
-      main.appendChild(h('div', { class: 'card empty', text: 'هنوز درخواستی ثبت نشده.' }));
+      main.appendChild(h('div', { class: 'card empty', text: T('requests.empty') }));
       return;
     }
 
@@ -479,24 +512,25 @@
       return h('div', { class: 'item req' + (r.read ? '' : ' unread'), style: 'display:block' }, [
         h('div', { style: 'display:flex;gap:12px;align-items:center' }, [
           h('div', { class: 'grow' }, [
-            h('b', { text: r.name + ' — ' + (r.type === 'consultation' ? 'مشاوره' : r.type === 'app' ? 'ساخت اپلیکیشن' : 'موضوع دیگر') }),
+            h('b', { text: r.name + ' — ' + T(r.type === 'consultation' ? 'requests.typeConsult'
+              : r.type === 'app' ? 'requests.typeApp' : 'requests.typeOther') }),
             h('small', { dir: 'ltr', style: 'display:block;text-align:start', text: r.email + (r.phone ? ' · ' + r.phone : '') })
           ]),
-          h('button', { class: 'btn small', text: r.read ? 'خوانده‌نشده' : 'خوانده شد', onclick: function () {
+          h('button', { class: 'btn small', text: T(r.read ? 'requests.markUnread' : 'requests.markRead'), onclick: function () {
             api('POST', '/api/requests/read', { id: r.id, read: !r.read }).then(refreshRequests);
           } }),
-          h('button', { class: 'btn small danger', text: 'حذف', onclick: function () {
-            if (confirm('این درخواست حذف شود؟')) api('POST', '/api/requests/delete', { id: r.id }).then(refreshRequests);
+          h('button', { class: 'btn small danger', text: T('requests.delete'), onclick: function () {
+            if (confirm(T('requests.confirmDelete'))) api('POST', '/api/requests/delete', { id: r.id }).then(refreshRequests);
           } })
         ]),
         h('div', { class: 'req-body', text: r.message }),
         h('div', { class: 'req-meta' }, [
-          h('span', { text: new Date(r.at).toLocaleString('fa-IR') }),
-          r.company ? h('span', { text: 'شرکت: ' + r.company }) : null,
-          r.platform ? h('span', { text: 'پلتفرم: ' + r.platform }) : null,
-          r.budget ? h('span', { text: 'بودجه: ' + r.budget }) : null,
-          r.timeline ? h('span', { text: 'زمان: ' + r.timeline }) : null,
-          r.language ? h('span', { text: 'زبان: ' + r.language }) : null
+          h('span', { text: new Date(r.at).toLocaleString(T('locale')) }),
+          r.company ? h('span', { text: T('requests.company') + r.company }) : null,
+          r.platform ? h('span', { text: T('requests.platform') + r.platform }) : null,
+          r.budget ? h('span', { text: T('requests.budget') + r.budget }) : null,
+          r.timeline ? h('span', { text: T('requests.timeline') + r.timeline }) : null,
+          r.language ? h('span', { text: T('requests.language') + r.language }) : null
         ])
       ]);
     })));
@@ -512,30 +546,30 @@
     var next = h('input', { type: 'password', autocomplete: 'new-password' });
     var again = h('input', { type: 'password', autocomplete: 'new-password' });
 
-    main.appendChild(h('h2', { class: 'page', text: 'حساب' }));
+    main.appendChild(h('h2', { class: 'page', text: T('account.title') }));
     main.appendChild(h('div', { class: 'card' }, [
-      h('h3', { text: 'تغییر رمز عبور' }),
-      h('label', { class: 'field' }, [h('span', { text: 'رمز فعلی' }), cur]),
+      h('h3', { text: T('account.changePassword') }),
+      h('label', { class: 'field' }, [h('span', { text: T('account.current') }), cur]),
       h('div', { class: 'row' }, [
-        h('label', { class: 'field' }, [h('span', { text: 'رمز جدید (حداقل ۸ کاراکتر)' }), next]),
-        h('label', { class: 'field' }, [h('span', { text: 'تکرار رمز جدید' }), again])
+        h('label', { class: 'field' }, [h('span', { text: T('account.new') }), next]),
+        h('label', { class: 'field' }, [h('span', { text: T('account.again') }), again])
       ]),
       h('div', { class: 'actions' }, [
-        h('button', { class: 'btn primary', text: 'تغییر رمز', onclick: function () {
-          if (next.value !== again.value) { status('err', 'تکرار رمز مطابقت ندارد.'); return; }
+        h('button', { class: 'btn primary', text: T('account.change'), onclick: function () {
+          if (next.value !== again.value) { status('err', T('account.mismatch')); return; }
           api('POST', '/api/password', { current: cur.value, next: next.value })
-            .then(function () { renderLogin('رمز عوض شد. با رمز جدید وارد شوید.'); })
-            .catch(function (e) { status('err', e.message === 'bad_password' ? 'رمز فعلی اشتباه است.' : e.message); });
+            .then(function () { renderLogin(T('login.changed')); })
+            .catch(function (e) { status('err', e.message === 'bad_password' ? T('account.currentWrong') : e.message); });
         } })
       ])
     ]));
 
     main.appendChild(h('div', { class: 'card' }, [
-      h('h3', { text: 'بازسازی دستی سایت' }),
-      h('p', { class: 'hint', text: 'معمولاً لازم نیست؛ هر ذخیره خودش سایت را می‌سازد. اگر چیزی از قلم افتاد این را بزنید.' }),
+      h('h3', { text: T('account.rebuildTitle') }),
+      h('p', { class: 'hint', text: T('account.rebuildHint') }),
       h('div', { class: 'actions' }, [
-        h('button', { class: 'btn', text: 'بازسازی همه صفحات', onclick: function () { save(api('POST', '/api/rebuild')); } }),
-        h('button', { class: 'btn', text: 'خروج از حساب', onclick: function () {
+        h('button', { class: 'btn', text: T('account.rebuild'), onclick: function () { save(api('POST', '/api/rebuild')); } }),
+        h('button', { class: 'btn', text: T('account.logout'), onclick: function () {
           api('POST', '/api/logout').then(function () { renderLogin(); });
         } })
       ])
@@ -556,8 +590,10 @@
       .catch(function () { renderLogin(); });
   }
 
+  setUiLang(state.ui);
+
   api('GET', '/api/session').then(function (s) {
     if (s.authenticated) boot();
-    else renderLogin(s.configured ? null : 'هنوز رمزی تنظیم نشده. روی سرور اجرا کنید: node server/set-password.js');
+    else renderLogin(s.configured ? null : T('login.notConfigured'));
   }).catch(function () { renderLogin(); });
 })();

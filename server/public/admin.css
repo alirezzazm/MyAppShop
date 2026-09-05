@@ -9,8 +9,10 @@
 * { box-sizing: border-box; }
 body {
   margin: 0; background: var(--bg); color: var(--text); line-height: 1.7;
-  font-family: Vazirmatn, 'Segoe UI', system-ui, sans-serif; font-size: 15px;
+  font-family: 'Vazirmatn', 'Inter', system-ui, sans-serif; font-size: 15px;
 }
+/* Latin copy reads better in Inter; Persian keeps Vazirmatn. */
+html[lang="en"] body { font-family: 'Inter', 'Vazirmatn', system-ui, sans-serif; line-height: 1.6; }
 a { color: var(--brand-2); }
 button, input, select, textarea { font: inherit; font-family: inherit; }
 
@@ -31,6 +33,16 @@ button, input, select, textarea { font: inherit; font-family: inherit; }
 .side button.tab:hover { background: var(--panel-2); color: var(--text); }
 .side button.tab.on { background: linear-gradient(135deg, var(--brand), var(--brand-2)); color: #fff; }
 .side .spacer { flex: 1; }
+.ui-lang { display: flex; gap: 6px; padding: 10px 13px 14px; }
+.ui-lang button {
+  flex: 1; padding: 5px 8px; border-radius: 8px; cursor: pointer; font-size: .8rem;
+  border: 1px solid var(--border); background: transparent; color: var(--faint);
+}
+.ui-lang button:hover { color: var(--text); border-color: var(--border-strong); }
+.ui-lang button.on { background: var(--panel-2); color: var(--text); border-color: var(--border-strong); }
+.login .ui-lang { justify-content: center; padding: 18px 0 0; }
+.login .ui-lang button { flex: 0 0 auto; padding: 5px 16px; }
+
 .side .meta { padding: 10px 13px; font-size: .78rem; color: var(--faint); border-top: 1px solid var(--border); }
 .badge-count { background: var(--bad); color: #fff; border-radius: 999px; padding: 0 7px; font-size: .72rem; font-weight: 700; }
 

@@ -354,6 +354,23 @@ for (const meta of LANGS) {
   fs.writeFileSync(out, render(meta));
   console.log(`  ${meta.code}.html  ${meta.native}${meta.dir === 'rtl' ? '  (rtl)' : ''}`);
 }
+/* Remove pages for products that no longer exist: publishing copies
+   the whole directory, so a deleted product would otherwise stay
+   live and keep its place in the sitemap. */
+const wanted = new Set();
+for (const product of PRODUCTS) {
+  for (const meta of LANGS) wanted.add(`${product.id}.${meta.code}.html`);
+}
+const langCodes = new Set(LANGS.map((l) => l.code));
+let removed = 0;
+for (const file of fs.readdirSync(ROOT)) {
+  const m = file.match(/^([a-z0-9-]+)\.([a-z]{2})\.html$/);
+  if (!m || !langCodes.has(m[2]) || wanted.has(file)) continue;
+  fs.unlinkSync(path.join(ROOT, file));
+  removed++;
+}
+if (removed) console.log(`  removed ${removed} page(s) for products that no longer exist`);
+
 let productPages = 0;
 for (const product of PRODUCTS) {
   for (const meta of LANGS) {
