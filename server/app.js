@@ -62,8 +62,14 @@ function cookies(req) {
   return out;
 }
 
+/* Behind the Cloudflare proxy the socket address is Cloudflare's, so
+   prefer the header it sets. Falls back to the usual forwarded chain,
+   then the socket, so this works proxied or not. */
 function clientIp(req) {
-  return (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket.remoteAddress || 'unknown';
+  return req.headers['cf-connecting-ip']
+    || (req.headers['x-forwarded-for'] || '').split(',')[0].trim()
+    || req.socket.remoteAddress
+    || 'unknown';
 }
 
 function authed(req) {
@@ -78,13 +84,17 @@ function requireAuth(req, res) {
 
 /* Rebuilds the static site, reporting failures rather than
    leaving the admin thinking a save went live. */
-function rebuild() {
+async function rebuild() {
   try {
     build.rebuild({ siteUrl: SITE_URL, webRoot: WEB_ROOT });
-    return { ok: true };
   } catch (e) {
     return { ok: false, error: String((e && e.stderr) || (e && e.message) || e).slice(0, 800) };
   }
+
+  // Published successfully; the edge cache is a separate concern.
+  const purge = await build.purgeCloudflare();
+  if (purge && purge.ok === false) return { ok: true, warning: 'cache_purge_failed', error: purge.error };
+  return { ok: true, purged: !!(purge && purge.ok) };
 }
 
 /* ---------- static files for the panel ----------------------- */
@@ -161,7 +171,7 @@ const routes = {
     const c = store.rawContent();
     c.site = Object.assign({}, c.site, body || {});
     store.saveContent(c);
-    send(res, 200, Object.assign({ ok: true }, rebuild()));
+    send(res, 200, Object.assign({ ok: true }, await rebuild()));
   },
 
   'PUT /api/products': async (req, res) => {
@@ -185,7 +195,7 @@ const routes = {
       }
     }
     store.saveContent(c);
-    send(res, 200, Object.assign({ ok: true }, rebuild()));
+    send(res, 200, Object.assign({ ok: true }, await rebuild()));
   },
 
   'PUT /api/texts': async (req, res) => {
@@ -193,7 +203,7 @@ const routes = {
     const body = await readBody(req);
     if (!body.lang || typeof body.entries !== 'object') return send(res, 400, { error: 'lang and entries required' });
     store.setTexts(body.lang, body.entries);
-    send(res, 200, Object.assign({ ok: true }, rebuild()));
+    send(res, 200, Object.assign({ ok: true }, await rebuild()));
   },
 
   'PUT /api/trust-logos': async (req, res) => {
@@ -203,12 +213,12 @@ const routes = {
     const c = store.rawContent();
     c.trustLogos = body.logos.map(String).filter(Boolean);
     store.saveContent(c);
-    send(res, 200, Object.assign({ ok: true }, rebuild()));
+    send(res, 200, Object.assign({ ok: true }, await rebuild()));
   },
 
-  'POST /api/rebuild': (req, res) => {
+  'POST /api/rebuild': async (req, res) => {
     if (!requireAuth(req, res)) return;
-    send(res, 200, Object.assign({ ok: true }, rebuild()));
+    send(res, 200, Object.assign({ ok: true }, await rebuild()));
   },
 
   'GET /api/requests': (req, res) => {

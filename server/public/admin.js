@@ -87,7 +87,8 @@
     status('busy', T('status.saving'));
     return promise.then(function (res) {
       state.busy = false;
-      if (res && res.error) status('err', T('status.savedNoBuild') + res.error);
+      if (res && res.warning === 'cache_purge_failed') status('busy', T('status.savedPurgeFailed') + res.error);
+      else if (res && res.error) status('err', T('status.savedNoBuild') + res.error);
       else status('ok', T('status.saved'));
       return res;
     }).catch(function (e) {

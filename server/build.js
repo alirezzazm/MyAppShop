@@ -90,6 +90,34 @@ function publish(webRoot) {
   }
 }
 
+/* When the site sits behind Cloudflare's cache, a rebuild is only
+   visible once the edge is purged. Configured through the service
+   environment; skipped entirely when unset, so this stays optional.
+
+   The token needs a single permission: Zone > Cache Purge > Purge. */
+async function purgeCloudflare() {
+  const zone = process.env.CF_ZONE_ID;
+  const token = process.env.CF_API_TOKEN;
+  if (!zone || !token) return { skipped: true };
+
+  try {
+    const res = await fetch(`https://api.cloudflare.com/client/v4/zones/${zone}/purge_cache`, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ purge_everything: true }),
+      signal: AbortSignal.timeout(15000)
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok || json.success === false) {
+      const why = (json.errors && json.errors[0] && json.errors[0].message) || ('HTTP ' + res.status);
+      return { ok: false, error: why };
+    }
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: String(e.message || e) };
+  }
+}
+
 function rebuild(opts) {
   const siteUrl = (opts && opts.siteUrl) || process.env.SITE_URL || 'http://localhost';
   const webRoot = (opts && opts.webRoot) || process.env.WEB_ROOT || '/var/www/myappshop';
@@ -100,7 +128,16 @@ function rebuild(opts) {
   return log;
 }
 
-module.exports = { rebuild, writeOverrides, publish };
+/* Same as rebuild(), plus the cache purge. The purge is reported but
+   never fails the rebuild: the files are already published either
+   way, and the admin should be told which half went wrong. */
+async function rebuildAndPurge(opts) {
+  const log = rebuild(opts);
+  const purge = await purgeCloudflare();
+  return { log, purge };
+}
+
+module.exports = { rebuild, rebuildAndPurge, purgeCloudflare, writeOverrides, publish };
 
 if (require.main === module) {
   const out = rebuild({

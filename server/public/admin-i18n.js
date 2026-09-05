@@ -34,6 +34,7 @@
       'status.saving': 'در حال ذخیره و بازسازی سایت…',
       'status.saved': 'ذخیره شد و سایت بازسازی شد ✓',
       'status.savedNoBuild': 'ذخیره شد، اما بازسازی سایت شکست خورد: ',
+      'status.savedPurgeFailed': 'ذخیره و بازسازی شد، اما پاک‌کردن کش کلادفلر ناموفق بود: ',
       'status.error': 'خطا: ',
 
       'products.title': 'محصولات',
@@ -138,6 +139,7 @@
       'status.saving': 'Saving and rebuilding the site…',
       'status.saved': 'Saved and the site was rebuilt ✓',
       'status.savedNoBuild': 'Saved, but rebuilding the site failed: ',
+      'status.savedPurgeFailed': 'Saved and rebuilt, but clearing the Cloudflare cache failed: ',
       'status.error': 'Error: ',
 
       'products.title': 'Products',

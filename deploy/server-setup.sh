@@ -178,6 +178,10 @@ Environment=PORT=3001
 Environment=HOST=127.0.0.1
 Environment=SITE_URL=${SITE_URL}
 Environment=WEB_ROOT=${WEB_ROOT}
+# Optional: purge the Cloudflare cache after each rebuild. Create a
+# token with only Zone > Cache Purge > Purge, then uncomment and fill.
+# Environment=CF_ZONE_ID=
+# Environment=CF_API_TOKEN=
 ExecStart=$(command -v node) ${APP_DIR}/server/app.js
 Restart=always
 RestartSec=3
@@ -205,6 +209,11 @@ systemctl is-active --quiet myappshop-admin \
 if ! node -e "require('${APP_DIR}/server/auth').isConfigured() || process.exit(1)" 2>/dev/null; then
   say "Setting the admin password"
   node "${APP_DIR}/server/set-password.js"
+fi
+
+if [[ -n "$DOMAIN" ]]; then
+  say "Trusting Cloudflare for the client IP (harmless if you do not use it)"
+  bash "$APP_DIR/deploy/cloudflare-realip.sh" || echo "! Skipped — could not reach Cloudflare's IP list."
 fi
 
 say "Opening the firewall"
